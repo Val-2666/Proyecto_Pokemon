@@ -1,6 +1,6 @@
   
 # *Simulador de Batallas Pokémon*  
-🚀 Proyecto de Programación Orientada a Objetos en Java  
+Proyecto de Programación Orientada a Objetos en Java  
 
 ## 📌 *Descripción*  
 Este proyecto es un simulador de batallas Pokémon basado en *Programación Orientada a Objetos (POO)*. Los entrenadores pueden elegir y crear Pokémon con diferentes tipos, ataques y puntos de salud. La batalla sigue un sistema de turnos y considera ventajas de tipo en los ataques.  
