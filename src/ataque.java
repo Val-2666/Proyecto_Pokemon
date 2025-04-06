@@ -49,13 +49,7 @@ return damageFinal;
     public boolean ventaja(String tipoEnemigo){
         if(this.tipoDano.equals("agua") && tipoEnemigo.equals("fuego")){
             return true;
-        }else if(this.tipoDano.equals("fuego") && tipoEnemigo.equals("planta")){
-            return true;
-        }else if(this.tipoDano.equals("planta") && tipoEnemigo.equals("agua")){
-            return true;
-        }else{
-            return false;
-        }
+        }else return this.tipoDano.equals("fuego") && tipoEnemigo.equals("planta") || this.tipoDano.equals("planta") && tipoEnemigo.equals("agua");
     }
 
     public void aplicar_ataque(Pokemon enemigo){
