@@ -8,9 +8,6 @@ public class Ataque {
         this.tipoDano = tipoDano;
         this.potenciaAtaque = potenciaAtaque;
     }
-
-    public Ataque() {
-    }
     
     public String getnombreAtaque() {
         return nombreAtaque;
@@ -20,6 +17,17 @@ public class Ataque {
     }
     public int getpotenciaAtaque() {
         return potenciaAtaque;
+    }
+    public void setNombreAtaque(String nombreAtaque) {
+        this.nombreAtaque = nombreAtaque;
+    }
+
+    public void setTipoDano(String tipoDano) {
+        this.tipoDano = tipoDano;
+    }
+
+    public void setPotenciaAtaque(int potenciaAtaque) {
+        this.potenciaAtaque = potenciaAtaque;
     }
 
     //metodo para calcular el daño
@@ -55,4 +63,5 @@ return damageFinal;
         enemigo.restarHP(damage);
         System.out.println("El ataque " + nombreAtaque + " ha hecho " + damage + " de daño a " + enemigo.getNombre());
     }
+
 }
