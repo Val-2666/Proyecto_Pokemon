@@ -5,7 +5,7 @@ public class Pokemon {
     private String tipo;
     private int puntosSalud;
 
-    // Comentamos esto porque la clase Ataque aún no existe
+    // Comenté esto porque la clase Ataque aún no existe
     // private ArrayList<Ataque> ataques;
 
     public Pokemon(String nombre, String tipo, int puntosSalud) {
