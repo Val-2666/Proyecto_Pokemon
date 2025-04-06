@@ -1,61 +1,61 @@
 public class Ataque {
-    private String nombreAtaque;
-    private String tipoDano;
-    private int potenciaAtaque;
+    private String damagename;
+    private String damagetype;
+    private int damagepotency;
 
-    public Ataque(String nombreAtaque, String tipoDano, int potenciaAtaque) {
-        this.nombreAtaque = nombreAtaque;
-        this.tipoDano = tipoDano;
-        this.potenciaAtaque = potenciaAtaque;
+    public Ataque(String damagename, String damagetype, int damagepotency) {
+        this.damagename = damagename;
+        this.damagetype = damagetype;
+        this.damagepotency = damagepotency;
     }
     
-    public String getnombreAtaque() {
-        return nombreAtaque;
+    public String getdamagename() {
+        return damagename;
     }
-    public String gettipoDano() {
-        return tipoDano;
+    public String getdamagetype() {
+        return damagetype;
     }
-    public int getpotenciaAtaque() {
-        return potenciaAtaque;
+    public int getdamagepotency() {
+        return damagepotency;
     }
-    public void setNombreAtaque(String nombreAtaque) {
-        this.nombreAtaque = nombreAtaque;
-    }
-
-    public void setTipoDano(String tipoDano) {
-        this.tipoDano = tipoDano;
+    public void setdamagename(String damagename) {
+        this.damagename = damagename;
     }
 
-    public void setPotenciaAtaque(int potenciaAtaque) {
-        this.potenciaAtaque = potenciaAtaque;
+    public void setdamagetype(String damagetype) {
+        this.damagetype = damagetype;
+    }
+
+    public void setdamagepotency(int damagepotency) {
+        this.damagepotency = damagepotency;
     }
 
     //metodo para calcular el daño
-    public int calcularDamage(String tipoEnemigo, int defensaEnemigo){
+    public int calculatedamage(String enemytype, int enemydenfence){
         double base = 1.0;
 
-        if(ventaja(tipoEnemigo)){
+        if(advantage(enemytype)){
             base += 0.3;
     }
 
-    int damageInicial = (int) ((potenciaAtaque * base));
-    int damageFinal = damageInicial - defensaEnemigo;
-    if(damageFinal < 0){
-       damageFinal = 0;
+    int initialdamage = (int) ((damagepotency * base));
+    int finaldamage = initialdamage - enemydenfence;
+    if(finaldamage < 0){
+       finaldamage = 0;
     }
-return damageFinal;
+return finaldamage;
 }
-//metodo para verificar si el ataque tiene ventaja sobre el enemigo
-    public boolean ventaja(String tipoEnemigo){
-        if(this.tipoDano.equals("agua") && tipoEnemigo.equals("fuego")){
+//metodo para verificar si el ataque tiene advantage sobre el enemigo
+    public boolean advantage(String enemytype){
+        if(this.damagetype.equals("agua") && enemytype.equals("fuego")){
             return true;
-        }else return this.tipoDano.equals("fuego") && tipoEnemigo.equals("planta") || this.tipoDano.equals("planta") && tipoEnemigo.equals("agua");
+        }else return this.damagetype.equals("fuego") && enemytype.equals("planta") || this.damagetype.equals("planta") && enemytype.equals("agua");
     }
 
-    public void aplicar_ataque(Pokemon enemigo){
-        int damage = calcularDamage(enemigo.getTipo(), enemigo.getDefensa());
-        enemigo.restarHP(damage);
-        System.out.println("El ataque " + nombreAtaque + " ha hecho " + damage + " de daño a " + enemigo.getNombre());
+    public void applyattack(Pokemon enemy){
+        int damage = calculatedamage(enemy.gettype(), enemy.getdefence());
+        enemy.subtracthp(damage);
+        System.out.println("El ataque " + damagename + " ha hecho " + damage + " de daño a " + enemy.getname());
     }
 
 }
