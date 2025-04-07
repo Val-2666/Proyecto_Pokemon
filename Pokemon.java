@@ -1,44 +1,72 @@
 import java.util.ArrayList;
 
 public class Pokemon {
-    private String nombre;
-    private String tipo;
-    private int puntosSalud;
+    private String name;
+    private String type;
+    private int healthPoints;
+    private int hp;
+    private int defense;
+    private ArrayList<Attack> attacks;
 
-    // private ArrayList<Ataque> ataques;
-
-    public Pokemon(String nombre, String tipo, int puntosSalud) {
-        this.nombre = nombre;
-        this.tipo = tipo;
-        this.puntosSalud = puntosSalud;
-        // this.ataques = new ArrayList<>();
+    public Pokemon(String name, String type, int healthPoints, int hp, int defense) {
+        this.name = name;
+        this.type = type;
+        this.healthPoints = healthPoints;
+        this.hp = hp;
+        this.defense = defense;
+        this.attacks = new ArrayList<>();
     }
 
-    public String getNombre() {
-        return nombre;
+    // Getters and setters
+    public String getName() {
+        return name;
     }
 
-    public String getTipo() {
-        return tipo;
+    public String getType() {
+        return type;
     }
 
-    public int getPuntosSalud() {
-        return puntosSalud;
+    public int getHealthPoints() {
+        return healthPoints;
     }
 
-    public void setPuntosSalud(int puntosSalud) {
-        this.puntosSalud = puntosSalud;
+    public void setHealthPoints(int healthPoints) {
+        this.healthPoints = healthPoints;
     }
 
-    public void recibirDanio(int danio) {
-        puntosSalud -= danio;
-        if (puntosSalud < 0) {
-            puntosSalud = 0;
+    public int getHp() {
+        return hp;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
+    }
+
+    public int getDefense() {
+        return defense;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
+    }
+
+    public void subtractHp(int damage) {
+        healthPoints -= damage;
+        if (healthPoints < 0) {
+            healthPoints = 0;
         }
     }
 
-    // Unico punto de interacción con Ataque
-    public void usarAtaque(Ataque ataque, Pokemon enemigo) {
-        ataque.atacar(this, enemigo); // 'this' es el atacante
+    public ArrayList<Attack> getAttacks() {
+        return attacks;
+    }
+
+    public void addAttack(Attack attack) {
+        attacks.add(attack);
+    }
+
+    // ✅ Método para usar ataque (para que funcione el Main.java)
+    public void useAttack(Attack attack, Pokemon enemy) {
+        attack.Applyattack(enemy);
     }
 }
