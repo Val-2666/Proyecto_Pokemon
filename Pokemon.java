@@ -17,7 +17,7 @@ public class Pokemon {
         this.attacks = new ArrayList<>();
     }
 
-    // Getters and setters
+    // Getters y setters
     public String getName() {
         return name;
     }
@@ -64,8 +64,6 @@ public class Pokemon {
     public void addAttack(Attack attack) {
         attacks.add(attack);
     }
-
-    // ✅ Método para usar ataque (para que funcione el Main.java)
     public void useAttack(Attack attack, Pokemon enemy) {
         attack.Applyattack(enemy);
     }
