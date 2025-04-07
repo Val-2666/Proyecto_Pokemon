@@ -1,9 +1,9 @@
-public class Attack {
+public class Ataque {
     private String damagename;
     private String damagetype;
     private int damagepotency;
 
-    public Attack(String damagename, String damagetype, int damagepotency) {
+    public Ataque(String damagename, String damagetype, int damagepotency) {
         this.damagename = damagename;
         this.damagetype = damagetype;
         this.damagepotency = damagepotency;
