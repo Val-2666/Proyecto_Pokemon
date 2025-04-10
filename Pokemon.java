@@ -4,20 +4,19 @@ public class Pokemon {
     private String name;
     private String type;
     private int healthPoints;
-    private int hp;
     private int defense;
-    private ArrayList<Attack> attacks;
+    private ArrayList<Ataque> attacks;
 
-    public Pokemon(String name, String type, int healthPoints, int hp, int defense) {
+    // Constructor
+    public Pokemon(String name, String type, int healthPoints, int defense) {
         this.name = name;
         this.type = type;
         this.healthPoints = healthPoints;
-        this.hp = hp;
         this.defense = defense;
         this.attacks = new ArrayList<>();
     }
 
-    // Getters y setters
+    // Getters
     public String getName() {
         return name;
     }
@@ -30,41 +29,31 @@ public class Pokemon {
         return healthPoints;
     }
 
-    public void setHealthPoints(int healthPoints) {
-        this.healthPoints = healthPoints;
-    }
-
-    public int getHp() {
-        return hp;
-    }
-
-    public void setHp(int hp) {
-        this.hp = hp;
-    }
-
     public int getDefense() {
         return defense;
     }
 
-    public void setDefense(int defense) {
-        this.defense = defense;
-    }
-
-    public void subtractHp(int damage) {
-        healthPoints -= damage;
-        if (healthPoints < 0) {
-            healthPoints = 0;
-        }
-    }
-
-    public ArrayList<Attack> getAttacks() {
+    public ArrayList<Ataque> getAttacks() {
         return attacks;
     }
 
-    public void addAttack(Attack attack) {
-        attacks.add(attack);
+    // Métodos
+    public void addAttack(Ataque ataque) {
+        if (attacks.size() < 4) {
+            attacks.add(ataque);
+        } else {
+            System.out.println("Este Pokémon ya tiene 4 ataques.");
+        }
     }
-    public void useAttack(Attack attack, Pokemon enemy) {
-        attack.Applyattack(enemy);
+
+    public void subtractHp(int damage) {
+        this.healthPoints -= damage;
+        if (this.healthPoints < 0) {
+            this.healthPoints = 0;
+        }
+    }
+
+    public void useAttack(Ataque ataque, Pokemon enemigo) {
+        ataque.applyAttack(enemigo);
     }
 }
