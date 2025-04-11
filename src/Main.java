@@ -6,7 +6,6 @@ public class Main {
 
         System.out.println("----- Simulador de Batallas Pokémon -----");
 
-        // 1. Nombres de los entrenadores
         System.out.print("Nombre del Entrenador 1: ");
         String nombre1 = scanner.nextLine();
         Entrenador entrenador1 = new Entrenador(nombre1);
@@ -15,7 +14,6 @@ public class Main {
         String nombre2 = scanner.nextLine();
         Entrenador entrenador2 = new Entrenador(nombre2);
 
-        // 2. Crear equipos para ambos entrenadores
         System.out.println("\n--- Crear equipo para " + nombre1 + " ---\n");
         crearEquipo(scanner, entrenador1);
 
