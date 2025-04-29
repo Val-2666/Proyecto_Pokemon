@@ -22,6 +22,10 @@ public class Ataque {
         return damagepotency;
     }
 
+    public int getPower() {
+        return damagepotency;  // 👈 Ahora sí devuelve la potencia real
+    }
+
     // Setters
     public void setdamagename(String damagename) {
         this.damagename = damagename;

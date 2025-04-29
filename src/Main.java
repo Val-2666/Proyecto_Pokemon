@@ -1,217 +1,160 @@
-import java.util.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 public class Main {
+
+    private static Entrenador entrenador1;
+    private static Entrenador entrenador2;
+    private static Pokemon poke1;
+    private static Pokemon poke2;
+    private static int ronda = 1;
+    private static JFrame ventana;
+    private static JTextArea textoBatalla;
+    private static JButton btnAtacar;
+    private static JComboBox<String> comboAtaques;
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                iniciarBatalla();  // Llamamos directamente a iniciarBatalla en lugar de InterfazGrafica
+            }
+        });
+    }
 
-        System.out.println("----- Simulador de Batallas Pokémon -----");
+    public static void iniciarBatalla() {
+        // Crear los entrenadores con nombres aleatorios
+        entrenador1 = new Entrenador("Entrenador 1");
+        entrenador2 = new Entrenador("Entrenador 2");
 
-        System.out.print("Nombre del Entrenador 1: ");
-        String nombre1 = scanner.nextLine();
-        Entrenador entrenador1 = new Entrenador(nombre1);
+        // Crear la ventana de la interfaz gráfica
+        ventana = new JFrame("Batalla Pokémon");
+        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventana.setSize(600, 400);
+        ventana.setLayout(new BorderLayout());
 
-        System.out.print("Nombre del Entrenador 2: ");
-        String nombre2 = scanner.nextLine();
-        Entrenador entrenador2 = new Entrenador(nombre2);
+        // Crear área de texto para mostrar el estado de la batalla
+        textoBatalla = new JTextArea();
+        textoBatalla.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textoBatalla);
+        ventana.add(scrollPane, BorderLayout.CENTER);
 
-        System.out.println("\n--- Crear equipo para " + nombre1 + " ---\n");
-        crearEquipo(scanner, entrenador1);
+        // Crear el panel de botones y ataques
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new FlowLayout());
 
-        System.out.println("\n--- Crear equipo para " + nombre2 + " ---\n");
-        crearEquipo(scanner, entrenador2);
+        // Crear un JComboBox para seleccionar ataque
+        comboAtaques = new JComboBox<>();
+        panelBotones.add(comboAtaques);
 
-        System.out.println("\n ¡Equipos listos!");
-        System.out.println("Presiona ENTER para comenzar la batalla...");
-        scanner.nextLine();
+        // Crear el botón de ataque
+        btnAtacar = new JButton("Atacar");
+        btnAtacar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                realizarTurno();
+            }
+        });
+        panelBotones.add(btnAtacar);
 
-        System.out.println("\n--- ¡Comienza la batalla! ---\n");
+        ventana.add(panelBotones, BorderLayout.SOUTH);
+        ventana.setVisible(true);
 
-        Pokemon poke1 = entrenador1.obtenerPokemonConMenosSalud();
-        Pokemon poke2 = entrenador2.obtenerPokemonConMenosSalud();
+        // Mostrar la información inicial
+        mostrarEstadoInicial();
+    }
 
-        int ronda = 1;
+    private static void mostrarEstadoInicial() {
+        // Los entrenadores ya tienen sus equipos generados
+        poke1 = entrenador1.obtenerPokemonActivo();
+        poke2 = entrenador2.obtenerPokemonActivo();
 
-        while (poke1.getHealthPoints() > 0 && poke2.getHealthPoints() > 0) {
-            limpiarConsola();
-            System.out.println("\n=============================\n");
-            System.out.println("  RONDA " + ronda);
-            System.out.println("=============================\n");
+        // Mostrar los nombres de los entrenadores y los Pokémon
+        textoBatalla.setText("¡Los equipos están listos!\n\n"
+                + "Entrenador 1: " + entrenador1.getNombre() + " - Pokémon: " + poke1.getName() + "\n"
+                + "Entrenador 2: " + entrenador2.getNombre() + " - Pokémon: " + poke2.getName() + "\n\n");
 
-            if (poke1.getHealthPoints() < poke2.getHealthPoints()) {
-                System.out.println("Turno del equipo de " + nombre1);
-                System.out.println("Turno de: " + poke1.getName());
-                System.out.println();
-                Ataque atk1 = elegirAtaque(scanner, poke1);
-                poke1.useAttack(atk1, poke2);
+        // Llenar el JComboBox con los ataques del primer Pokémon
+        actualizarAtaques();
+    }
 
-                if (poke2.getHealthPoints() > 0) {
-                    System.out.println("\nAhora ataca el equipo de " + nombre2);
-                    System.out.println("Turno de: " + poke2.getName());
-                    System.out.println();
-                    Ataque atk2 = elegirAtaque(scanner, poke2);
-                    poke2.useAttack(atk2, poke1);
-                }
-            } else {
-                System.out.println("Turno del equipo de " + nombre2);
-                System.out.println("Turno de: " + poke2.getName());
-                System.out.println();
-                Ataque atk2 = elegirAtaque(scanner, poke2);
-                poke2.useAttack(atk2, poke1);
+    private static void actualizarAtaques() {
+        comboAtaques.removeAllItems();
+        for (Ataque ataque : poke1.getAttacks()) {
+            comboAtaques.addItem(ataque.getdamagename() + " (Potencia: " + ataque.getPower() + ")");
+        }
+    }
 
-                if (poke1.getHealthPoints() > 0) {
-                    System.out.println("\nAhora ataca el equipo de " + nombre1);
-                    System.out.println("Turno de: " + poke1.getName());
-                    System.out.println();
-                    Ataque atk1 = elegirAtaque(scanner, poke1);
-                    poke1.useAttack(atk1, poke2);
-                }
+    private static void realizarTurno() {
+        if (poke1.getHealthPoints() > 0 && poke2.getHealthPoints() > 0) {
+            // Seleccionar ataque del primer Pokémon
+            String ataqueSeleccionado = (String) comboAtaques.getSelectedItem();
+            Ataque ataque = obtenerAtaquePorNombre(ataqueSeleccionado);
+
+            // Realizar el ataque
+            if (ataque != null) {
+                poke1.useAttack(ataque, poke2);
             }
 
-            System.out.println("\n Vida restante:");
-            System.out.println(poke1.getName() + " (" + nombre1 + "): " + poke1.getHealthPoints() + " HP");
-            System.out.println(poke2.getName() + " (" + nombre2 + "): " + poke2.getHealthPoints() + " HP");
+            // Actualizar la interfaz gráfica
+            actualizarEstadoBatalla();
 
-            System.out.println("\nPresiona ENTER para continuar...");
-            scanner.nextLine();
-            ronda++;
+            // Verificar si el Pokémon defensor está vencido
+            if (poke2.getHealthPoints() <= 0) {
+                // El primer entrenador gana si su Pokémon ha derrotado al segundo
+                mostrarResultadoBatalla();
+            } else {
+                // Cambio de turno: El segundo entrenador ataca
+                ataqueSeleccionado = (String) comboAtaques.getSelectedItem();
+                ataque = obtenerAtaquePorNombre(ataqueSeleccionado);
+
+                if (ataque != null) {
+                    poke2.useAttack(ataque, poke1);
+                }
+
+                actualizarEstadoBatalla();
+
+                if (poke1.getHealthPoints() <= 0) {
+                    // El segundo entrenador gana si su Pokémon ha derrotado al primero
+                    mostrarResultadoBatalla();
+                }
+            }
         }
+    }
 
-        System.out.println("\n=============================\n");
-        System.out.println("--- Resultado de la Batalla ---");
+    private static Ataque obtenerAtaquePorNombre(String ataqueSeleccionado) {
+        for (Ataque ataque : poke1.getAttacks()) {
+            if (ataque.getdamagename().equals(ataqueSeleccionado.split(" ")[0])) {
+                return ataque;
+            }
+        }
+        return null;
+    }
+
+    private static void actualizarEstadoBatalla() {
+        String estado = "Ronda " + ronda + "\n\n"
+                + poke1.getName() + " (" + entrenador1.getNombre() + "): " + poke1.getHealthPoints() + " HP\n"
+                + poke2.getName() + " (" + entrenador2.getNombre() + "): " + poke2.getHealthPoints() + " HP\n\n";
+
+        // Actualizar el área de texto con el nuevo estado
+        textoBatalla.setText(estado);
+
+        // Incrementar la ronda
+        ronda++;
+    }
+
+    private static void mostrarResultadoBatalla() {
+        String resultado;
         if (poke1.getHealthPoints() <= 0 && poke2.getHealthPoints() <= 0) {
-            System.out.println("¡Empate! Ambos Pokémon han caído.");
+            resultado = "¡Empate! Ambos Pokémon han caído.";
         } else if (poke1.getHealthPoints() <= 0) {
-            System.out.println(poke2.getName() + " ---- Ha ganado. ¡Entrenador " + nombre2 + " es el vencedor!");
+            resultado = poke2.getName() + " ha ganado. ¡Entrenador " + entrenador2.getNombre() + " es el vencedor!";
         } else {
-            System.out.println(poke1.getName() + " ---- Ha ganado. ¡Entrenador " + nombre1 + " es el vencedor!");
-        }
-        System.out.println("=============================\n");
-
-        scanner.close();
-    }
-
-    public static void crearEquipo(Scanner scanner, Entrenador entrenador) {
-        System.out.println("¿Deseas crear tu equipo?");
-        System.out.println("1. Manualmente");
-        System.out.println("2. Aleatoriamente");
-
-        int opcion = leerEntero(scanner, 1, 2);
-
-        if (opcion == 1) {
-            System.out.println("\n--- Tu Pokémon ---\n");
-
-            System.out.print("Nombre: ");
-            String nombre = scanner.nextLine();
-
-            System.out.print("Tipo (fuego, agua, planta): ");
-            String tipo = scanner.nextLine().toLowerCase();
-
-            System.out.print("Puntos de salud (HP): ");
-            int hp = leerEntero(scanner, 1, 500);
-
-            System.out.print("Defensa: ");
-            int defensa = leerEntero(scanner, 1, 100);
-
-            Pokemon p = new Pokemon(nombre, tipo, hp, defensa);
-
-            for (int j = 0; j < 4; j++) {
-                System.out.println("\n--- Ataque #" + (j + 1) + " ---");
-
-                System.out.print("Nombre: ");
-                String anombre = scanner.nextLine();
-
-                System.out.print("Tipo de daño (fuego, agua, planta): ");
-                String atipo = scanner.nextLine().toLowerCase();
-
-                System.out.print("Potencia: ");
-                int potencia = leerEntero(scanner, 1, 200);
-
-                p.addAttack(new Ataque(anombre, atipo, potencia));
-            }
-
-            entrenador.agregarPokemon(p);
-            System.out.println();
-
-        } else {
-            String[] nombresPool = {"Charmander", "Bulbasaur", "Squirtle", "Torchic", "Treecko", "Mudkip"};
-            String[] tiposPool = {"fuego", "planta", "agua"};
-            String[][] ataquesPorTipo = {
-                {"Llama Ardiente", "Ascuas", "Giro Ígneo", "Fuego Fatuo"},
-                {"Hoja Afilada", "Drenadoras", "Rayo Solar", "Látigo Cepa"},
-                {"Pistola Agua", "Hidrobomba", "Salpicar", "Ola Aplastante"}
-            };
-
-            Random rand = new Random();
-            int idx = rand.nextInt(nombresPool.length);
-            String nombre = nombresPool[idx];
-            String tipo = tiposPool[idx % tiposPool.length];
-
-            int hp = 80 + rand.nextInt(41);
-            int defensa = 10 + rand.nextInt(11);
-
-            Pokemon p = new Pokemon(nombre, tipo, hp, defensa);
-
-            int tipoIndex = tipo.equals("fuego") ? 0 : tipo.equals("agua") ? 2 : 1;
-            for (int j = 0; j < 4; j++) {
-                String nombreAtaque = ataquesPorTipo[tipoIndex][j];
-                int potencia = 15 + rand.nextInt(31);
-                p.addAttack(new Ataque(nombreAtaque, tipo, potencia));
-            }
-
-            entrenador.agregarPokemon(p);
-            System.out.println("\n>>>> El Pokémon que atrajo tu suerte fue: " + p.getName() + " (" + p.getType() + "), HP: " + p.getHealthPoints() + ", DEF: " + p.getDefense());
-            System.out.println("¡ Equipo aleatorio creado !\n");
-        }
-    }
-
-    public static Ataque elegirAtaque(Scanner scanner, Pokemon pokemon) {
-        System.out.println("Ataques de " + pokemon.getName() + ":");
-        ArrayList<Ataque> ataques = pokemon.getAttacks();
-        for (int i = 0; i < ataques.size(); i++) {
-            Ataque a = ataques.get(i);
-            System.out.println((i + 1) + ". " + a.getdamagename() + " (" + a.getdamagetype() + ") Potencia: " + a.getdamagepotency());
+            resultado = poke1.getName() + " ha ganado. ¡Entrenador " + entrenador1.getNombre() + " es el vencedor!";
         }
 
-        int eleccion = leerEntero(scanner, 1, ataques.size());
-
-        return ataques.get(eleccion - 1);
-    }
-
-    public static int leerEntero(Scanner scanner, int min, int max) {
-        int num = -1;
-        boolean valido = false;
-
-        while (!valido) {
-            try {
-                System.out.print("Ingresa un número (" + min + "-" + max + "): ");
-                num = scanner.nextInt();
-                scanner.nextLine();
-
-                if (num >= min && num <= max) {
-                    valido = true;
-                } else {
-                    System.out.println("Número fuera de rango. Intenta de nuevo.");
-                }
-
-            } catch (InputMismatchException e) {
-                System.out.println("Son números, no letras, tonto. Vuelve a intentar.");
-                scanner.nextLine();
-            }
-        }
-
-        return num;
-    }
-
-    public static void limpiarConsola() {
-        try {
-            if (System.getProperty("os.name").contains("Windows")) {
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            } else {
-                System.out.print("\033[H\033[2J");
-                System.out.flush();
-            }
-        } catch (Exception e) {
-            System.out.println("No se pudo limpiar la consola.");
-        }
+        textoBatalla.append("\n\n" + resultado);
+        JOptionPane.showMessageDialog(ventana, resultado, "Fin de la Batalla", JOptionPane.INFORMATION_MESSAGE);
     }
 }
