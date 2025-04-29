@@ -31,7 +31,6 @@ public class Main {
         Pokemon poke1 = entrenador1.obtenerPokemonConMenosSalud();
         Pokemon poke2 = entrenador2.obtenerPokemonConMenosSalud();
 
-        boolean turnoJugador1 = true;
         int ronda = 1;
 
         while (poke1.getHealthPoints() > 0 && poke2.getHealthPoints() > 0) {
@@ -40,19 +39,34 @@ public class Main {
             System.out.println("  RONDA " + ronda);
             System.out.println("=============================\n");
 
-            if (turnoJugador1) {
-                System.out.println(" Turno del equipo de " + nombre1);
+            if (poke1.getHealthPoints() < poke2.getHealthPoints()) {
+                System.out.println("Turno del equipo de " + nombre1);
                 System.out.println("Turno de: " + poke1.getName());
                 System.out.println();
                 Ataque atk1 = elegirAtaque(scanner, poke1);
                 poke1.useAttack(atk1, poke2);
+
+                if (poke2.getHealthPoints() > 0) {
+                    System.out.println("\nAhora ataca el equipo de " + nombre2);
+                    System.out.println("Turno de: " + poke2.getName());
+                    System.out.println();
+                    Ataque atk2 = elegirAtaque(scanner, poke2);
+                    poke2.useAttack(atk2, poke1);
+                }
             } else {
-                System.out.println(" Turno del equipo de " + nombre2);
+                System.out.println("Turno del equipo de " + nombre2);
                 System.out.println("Turno de: " + poke2.getName());
                 System.out.println();
                 Ataque atk2 = elegirAtaque(scanner, poke2);
                 poke2.useAttack(atk2, poke1);
-                ronda++;
+
+                if (poke1.getHealthPoints() > 0) {
+                    System.out.println("\nAhora ataca el equipo de " + nombre1);
+                    System.out.println("Turno de: " + poke1.getName());
+                    System.out.println();
+                    Ataque atk1 = elegirAtaque(scanner, poke1);
+                    poke1.useAttack(atk1, poke2);
+                }
             }
 
             System.out.println("\n Vida restante:");
@@ -61,13 +75,14 @@ public class Main {
 
             System.out.println("\nPresiona ENTER para continuar...");
             scanner.nextLine();
-
-            turnoJugador1 = !turnoJugador1;
+            ronda++;
         }
 
         System.out.println("\n=============================\n");
         System.out.println("--- Resultado de la Batalla ---");
-        if (poke1.getHealthPoints() <= 0) {
+        if (poke1.getHealthPoints() <= 0 && poke2.getHealthPoints() <= 0) {
+            System.out.println("¡Empate! Ambos Pokémon han caído.");
+        } else if (poke1.getHealthPoints() <= 0) {
             System.out.println(poke2.getName() + " ---- Ha ganado. ¡Entrenador " + nombre2 + " es el vencedor!");
         } else {
             System.out.println(poke1.getName() + " ---- Ha ganado. ¡Entrenador " + nombre1 + " es el vencedor!");
