@@ -47,67 +47,122 @@ public class InterfazGrafica extends JFrame {
         setVisible(true);
     }
 
-    public void mostrarVentanaEntrenadores() {
-        JFrame ventanaEntrenadores = new JFrame("Ingreso de Nombres de Entrenadores");
-        ventanaEntrenadores.setSize(700, 500);
-        ventanaEntrenadores.setLayout(new GridLayout(3, 2, 10, 10));
+   public void mostrarVentanaEntrenadores() {
+    JFrame ventanaEntrenadores = new JFrame("Ingreso de Nombres de Entrenadores");
+    ventanaEntrenadores.setSize(700, 500);
+    ventanaEntrenadores.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    ventanaEntrenadores.setLayout(new BorderLayout());
 
-        ventanaEntrenadores.add(new JLabel("Entrenador 1:"));
-        tfEntrenador1 = new JTextField();
-        ventanaEntrenadores.add(tfEntrenador1);
+    // Panel de fondo con imagen
+    JPanel panelFondo = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            ImageIcon fondo = new ImageIcon("fondo_entrenador.png");
+            g.drawImage(fondo.getImage(), 0, 0, getWidth(), getHeight(), this);
+        }
+    };
+    panelFondo.setLayout(new BoxLayout(panelFondo, BoxLayout.Y_AXIS));
+    ventanaEntrenadores.setContentPane(panelFondo);
 
-        ventanaEntrenadores.add(new JLabel("Entrenador 2:"));
-        tfEntrenador2 = new JTextField();
-        ventanaEntrenadores.add(tfEntrenador2);
+    // Panel del formulario
+    JPanel panelFormulario = new JPanel();
+    panelFormulario.setOpaque(false);
+    panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
+    panelFormulario.setBorder(BorderFactory.createEmptyBorder(30, 100, 30, 100)); // Márgenes amplios
 
-        JButton generarEquiposButton = new JButton("Presiona para formar los equipos");
-        generarEquiposButton.addActionListener(e -> {
-            String nombreEntrenador1 = tfEntrenador1.getText().trim();
-            String nombreEntrenador2 = tfEntrenador2.getText().trim();
+    // Campo Entrenador 1
+    JLabel labelEntrenador1 = new JLabel("Nombre del Entrenador 1:");
+    labelEntrenador1.setFont(new Font("Arial", Font.BOLD, 16));
+    labelEntrenador1.setAlignmentX(Component.CENTER_ALIGNMENT);
+    panelFormulario.add(labelEntrenador1);
 
-            if (nombreEntrenador1.isEmpty() || nombreEntrenador2.isEmpty()) {
-                JOptionPane.showMessageDialog(ventanaEntrenadores, "Por favor, ingresa los nombres de ambos entrenadores.", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                entrenador1 = new Entrenador(nombreEntrenador1);
-                entrenador2 = new Entrenador(nombreEntrenador2);
-                mostrarEquiposGenerados();
-                ventanaEntrenadores.setVisible(false);
-            }
-        });
+    tfEntrenador1 = new JTextField();
+    tfEntrenador1.setMaximumSize(new Dimension(300, 30));
+    tfEntrenador1.setAlignmentX(Component.CENTER_ALIGNMENT);
+    panelFormulario.add(tfEntrenador1);
 
-        ventanaEntrenadores.add(generarEquiposButton);
+    panelFormulario.add(Box.createVerticalStrut(20)); // Espacio vertical
 
-        ventanaEntrenadores.setLocationRelativeTo(null);
-        ventanaEntrenadores.setVisible(true);
-    }
+    // Campo Entrenador 2
+    JLabel labelEntrenador2 = new JLabel("Nombre del Entrenador 2:");
+    labelEntrenador2.setFont(new Font("Arial", Font.BOLD, 16));
+    labelEntrenador2.setAlignmentX(Component.CENTER_ALIGNMENT);
+    panelFormulario.add(labelEntrenador2);
+
+    tfEntrenador2 = new JTextField();
+    tfEntrenador2.setMaximumSize(new Dimension(300, 30));
+    tfEntrenador2.setAlignmentX(Component.CENTER_ALIGNMENT);
+    panelFormulario.add(tfEntrenador2);
+
+    panelFondo.add(Box.createVerticalGlue()); // Empuja el formulario hacia el centro
+    panelFondo.add(panelFormulario);
+    panelFondo.add(Box.createVerticalStrut(30)); // Espacio entre formulario y botón
+
+    // Panel del botón
+    JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    panelBoton.setOpaque(false);
+    JButton generarEquiposButton = new JButton("Presiona para formar los equipos");
+    
+    generarEquiposButton.addActionListener(e -> {
+        String nombreEntrenador1 = tfEntrenador1.getText().trim();
+        String nombreEntrenador2 = tfEntrenador2.getText().trim();
+
+        if (nombreEntrenador1.isEmpty() || nombreEntrenador2.isEmpty()) {
+            JOptionPane.showMessageDialog(ventanaEntrenadores, 
+                "Por favor, ingresa los nombres de ambos entrenadores.", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            entrenador1 = new Entrenador(nombreEntrenador1);
+            entrenador2 = new Entrenador(nombreEntrenador2);
+            mostrarEquiposGenerados();
+            ventanaEntrenadores.dispose(); // Cierra y libera recursos
+        }
+    });
+
+    panelBoton.add(generarEquiposButton);
+    panelFondo.add(panelBoton);
+    panelFondo.add(Box.createVerticalGlue()); // Empuja el botón hacia abajo
+
+    ventanaEntrenadores.setLocationRelativeTo(null);
+    ventanaEntrenadores.setVisible(true);
+}
+
 
     public void mostrarEquiposGenerados() {
         JFrame ventanaEquipos = new JFrame("Equipos Generados");
         ventanaEquipos.setSize(700, 500);
         ventanaEquipos.setLayout(new BorderLayout());
 
-        JPanel panelContenido = new JPanel();
-        panelContenido.setLayout(new BoxLayout(panelContenido, BoxLayout.Y_AXIS));
+        JPanel panelContenido = new JPanel(new GridLayout(1, 2, 20, 0)); // Dos columnas para los entrenadores
 
+        // Panel para el Entrenador 1
+        JPanel panelEntrenador1 = new JPanel();
+        panelEntrenador1.setLayout(new BoxLayout(panelEntrenador1, BoxLayout.Y_AXIS));
         JLabel label1 = new JLabel(entrenador1.getNombre() + ":");
         label1.setFont(new Font("Arial", Font.BOLD, 16));
-        panelContenido.add(label1);
+        panelEntrenador1.add(label1);
         for (Pokemon p : entrenador1.getEquipo()) {
-            panelContenido.add(crearPanelPokemon(p));
+            panelEntrenador1.add(crearPanelPokemon(p));
         }
+        panelContenido.add(panelEntrenador1);
 
-        panelContenido.add(Box.createRigidArea(new Dimension(0, 20)));
-
+        // Panel para el Entrenador 2
+        JPanel panelEntrenador2 = new JPanel();
+        panelEntrenador2.setLayout(new BoxLayout(panelEntrenador2, BoxLayout.Y_AXIS));
         JLabel label2 = new JLabel(entrenador2.getNombre() + ":");
         label2.setFont(new Font("Arial", Font.BOLD, 16));
-        panelContenido.add(label2);
+        panelEntrenador2.add(label2);
         for (Pokemon p : entrenador2.getEquipo()) {
-            panelContenido.add(crearPanelPokemon(p));
+            panelEntrenador2.add(crearPanelPokemon(p));
         }
+        panelContenido.add(panelEntrenador2);
 
         JScrollPane scrollPane = new JScrollPane(panelContenido);
         ventanaEquipos.add(scrollPane, BorderLayout.CENTER);
 
+        // Panel para centrar el botón
+        JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton iniciarBatallaButton = new JButton("Iniciar Batalla");
         iniciarBatallaButton.addActionListener(e -> {
             poke1 = entrenador1.obtenerPokemonActivo();
@@ -115,8 +170,9 @@ public class InterfazGrafica extends JFrame {
             mostrarVentanaBatalla();
             ventanaEquipos.setVisible(false);
         });
+        panelBoton.add(iniciarBatallaButton);
 
-        ventanaEquipos.add(iniciarBatallaButton, BorderLayout.SOUTH);
+        ventanaEquipos.add(panelBoton, BorderLayout.SOUTH);
         ventanaEquipos.setLocationRelativeTo(null);
         ventanaEquipos.setVisible(true);
     }
@@ -165,12 +221,12 @@ public class InterfazGrafica extends JFrame {
         comboAtaques2.removeAllItems();
         if (poke1 != null) {
             for (Ataque ataque : poke1.getAttacks()) {
-                comboAtaques1.addItem(ataque.getdamagename());
+                comboAtaques1.addItem(ataque.getdamagename() + " (Daño: " + ataque.getdamagepotency() + ")");
             }
         }
         if (poke2 != null) {
             for (Ataque ataque : poke2.getAttacks()) {
-                comboAtaques2.addItem(ataque.getdamagename());
+                comboAtaques2.addItem(ataque.getdamagename() + " (Daño: " + ataque.getdamagepotency() + ")");
             }
         }
     }
@@ -295,10 +351,17 @@ public class InterfazGrafica extends JFrame {
         panel.add(new JLabel("Ataques:"));
         StringBuilder ataquesTexto = new StringBuilder();
         for (Ataque ataque : pokemon.getAttacks()) {
-            ataquesTexto.append(ataque.getdamagename()).append(", ");
+            ataquesTexto.append(ataque.getdamagename())
+                        .append(" (Daño: ")
+                        .append(ataque.getdamagepotency())
+                        .append(", Tipo: ")
+                        .append(ataque.getdamagetype());
+            if (ataque.advantage(pokemon.getType())) {
+                ataquesTexto.append(", Ventaja de tipo");
+            }
         }
         if (ataquesTexto.length() > 0) {
-            ataquesTexto.setLength(ataquesTexto.length() - 2);
+            ataquesTexto.setLength(ataquesTexto.length() - 2); // Elimina la última coma y espacio
         }
         panel.add(new JLabel(ataquesTexto.toString()));
 
