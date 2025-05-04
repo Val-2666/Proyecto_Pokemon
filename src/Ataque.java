@@ -23,7 +23,7 @@ public class Ataque {
     }
 
     public int getPower() {
-        return damagepotency;  // 👈 Ahora sí devuelve la potencia real
+        return damagepotency;  // Ahora sí devuelve la potencia real
     }
 
     // Setters

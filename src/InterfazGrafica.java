@@ -1,9 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import javax.swing.*;
 
-public class InterfazGrafica {
-    private JFrame frame;
+public class InterfazGrafica extends JFrame {
     private JTextField tfEntrenador1, tfEntrenador2;
     private Entrenador entrenador1, entrenador2;
     private Pokemon poke1, poke2;
@@ -16,32 +14,37 @@ public class InterfazGrafica {
     private Ataque ataqueSeleccionado1, ataqueSeleccionado2;
 
     public InterfazGrafica() {
-        frame = new JFrame("¡Bienvenido al Mundo Pokémon!");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(700, 500);
-        frame.setLayout(new BorderLayout());
-
+        setTitle("¡Bienvenido al Mundo Pokémon!");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(700, 500);
+        setLayout(new BorderLayout());
+    
+        ImageIcon logo = new ImageIcon("logo.png");
+        JLabel logoLabel = new JLabel(logo);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(logoLabel, BorderLayout.NORTH);
+    
         JLabel welcomeLabel = new JLabel(
             "<html><center>🎮✨ ¡Prepárate para la Aventura! ✨🎮<br>Bienvenido al Simulador de Batallas Pokémon</center></html>",
             SwingConstants.CENTER
-        );
+            );
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setForeground(new Color(255, 100, 100));
-        frame.add(welcomeLabel, BorderLayout.CENTER);
-
+        add(welcomeLabel, BorderLayout.CENTER);
+    
         JButton startButton = new JButton("¡Comenzar!");
         startButton.setFont(new Font("Arial", Font.BOLD, 18));
         startButton.setBackground(new Color(100, 200, 255));
         startButton.setForeground(Color.BLACK);
-        frame.add(startButton, BorderLayout.SOUTH);
-
+        add(startButton, BorderLayout.SOUTH);
+    
         startButton.addActionListener(e -> {
-            frame.setVisible(false);
+            dispose(); // cierra esta ventana
             mostrarVentanaEntrenadores();
         });
 
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     public void mostrarVentanaEntrenadores() {
@@ -136,9 +139,9 @@ public class InterfazGrafica {
         barraHP1.setStringPainted(true);
         barraHP2.setStringPainted(true);
 
-        panelSuperior.add(new JLabel(entrenador1.getNombre() + ", elige el ataque de " + poke1.getName()));
+        panelSuperior.add(new JLabel(entrenador1.getNombre() + ", elige el ataque de tu Pokemón"));
         panelSuperior.add(comboAtaques1);
-        panelSuperior.add(new JLabel(entrenador2.getNombre() + ", elige el ataque de " + poke2.getName()));
+        panelSuperior.add(new JLabel(entrenador2.getNombre() + ", elige el ataque de tu Pokemón"));
         panelSuperior.add(comboAtaques2);
         panelSuperior.add(barraHP1);
         panelSuperior.add(barraHP2);
@@ -300,9 +303,5 @@ public class InterfazGrafica {
         panel.add(new JLabel(ataquesTexto.toString()));
 
         return panel;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new InterfazGrafica());
     }
 }
