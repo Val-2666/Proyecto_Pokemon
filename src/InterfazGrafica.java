@@ -187,29 +187,60 @@ public class InterfazGrafica extends JFrame {
         JScrollPane scrollPane = new JScrollPane(textoBatalla);
         ventanaBatalla.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel panelSuperior = new JPanel(new GridLayout(4, 2, 10, 10));
+        // Panel superior con información de los entrenadores y Pokémon
+        JPanel panelSuperior = new JPanel(new GridLayout(5, 2, 10, 10));
+
+        // Nombres de los entrenadores
+        JLabel labelEntrenador1 = new JLabel(entrenador1.getNombre());
+        labelEntrenador1.setFont(new Font("Arial", Font.BOLD, 14));
+        labelEntrenador1.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel labelEntrenador2 = new JLabel(entrenador2.getNombre());
+        labelEntrenador2.setFont(new Font("Arial", Font.BOLD, 14));
+        labelEntrenador2.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Nombres de los Pokémon
+        JLabel labelPokemon1 = new JLabel(poke1.getName());
+        labelPokemon1.setFont(new Font("Arial", Font.PLAIN, 12));
+        labelPokemon1.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel labelPokemon2 = new JLabel(poke2.getName());
+        labelPokemon2.setFont(new Font("Arial", Font.PLAIN, 12));
+        labelPokemon2.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Barras de HP
+        barraHP1 = new JProgressBar(0, poke1.getMaxHP());
+        barraHP1.setValue(poke1.getHealthPoints());
+        barraHP1.setStringPainted(true);
+        barraHP1.setString(poke1.getName() + " HP: " + poke1.getHealthPoints());
+
+        barraHP2 = new JProgressBar(0, poke2.getMaxHP());
+        barraHP2.setValue(poke2.getHealthPoints());
+        barraHP2.setStringPainted(true);
+        barraHP2.setString(poke2.getName() + " HP: " + poke2.getHealthPoints());
+
+        // ComboBox para seleccionar ataques
         comboAtaques1 = new JComboBox<>();
         comboAtaques2 = new JComboBox<>();
-        barraHP1 = new JProgressBar(0, 100);
-        barraHP2 = new JProgressBar(0, 100);
-        barraHP1.setStringPainted(true);
-        barraHP2.setStringPainted(true);
+        actualizarAtaques();
 
-        panelSuperior.add(new JLabel(entrenador1.getNombre() + ", elige el ataque de tu Pokemón"));
-        panelSuperior.add(comboAtaques1);
-        panelSuperior.add(new JLabel(entrenador2.getNombre() + ", elige el ataque de tu Pokemón"));
-        panelSuperior.add(comboAtaques2);
+        // Añadir componentes al panel superior
+        panelSuperior.add(labelEntrenador1);
+        panelSuperior.add(labelEntrenador2);
+        panelSuperior.add(labelPokemon1);
+        panelSuperior.add(labelPokemon2);
         panelSuperior.add(barraHP1);
         panelSuperior.add(barraHP2);
+        panelSuperior.add(new JLabel("Ataques de " + entrenador1.getNombre() + ":"));
+        panelSuperior.add(new JLabel("Ataques de " + entrenador2.getNombre() + ":"));
+        panelSuperior.add(comboAtaques1);
+        panelSuperior.add(comboAtaques2);
 
+        // Botón para realizar el turno
         btnRealizarTurno = new JButton("Realizar Turno");
         btnRealizarTurno.addActionListener(e -> realizarTurno());
 
         ventanaBatalla.add(panelSuperior, BorderLayout.NORTH);
         ventanaBatalla.add(btnRealizarTurno, BorderLayout.SOUTH);
 
-        actualizarAtaques();
-        actualizarBarrasHP();
         mostrarEstadoBatalla();
 
         ventanaBatalla.setLocationRelativeTo(null);
@@ -264,6 +295,10 @@ public class InterfazGrafica extends JFrame {
             return;
         }
 
+        // Extraer solo el nombre del ataque (antes del paréntesis)
+        atq1 = atq1.split(" \\(")[0];
+        atq2 = atq2.split(" \\(")[0];
+
         Ataque ataque1 = buscarAtaque(poke1, atq1);
         Ataque ataque2 = buscarAtaque(poke2, atq2);
 
@@ -291,6 +326,7 @@ public class InterfazGrafica extends JFrame {
         ataque.applyAttack(defensor);
 
         textoBatalla.append("\n🌟 " + atacante.getName() + " usó " + ataque.getdamagename() + " contra " + defensor.getName() + "\n");
+        textoBatalla.append("⚔️ Daño base: " + ataque.getdamagepotency() + "\n");
         if (ataque.advantage(defensor.getType())) {
             textoBatalla.append("💥 ¡Ataque con ventaja de tipo!\n");
         }
@@ -301,7 +337,7 @@ public class InterfazGrafica extends JFrame {
         if (defensor.getHealthPoints() <= 0) {
             textoBatalla.append("☠️ " + defensor.getName() + " ha sido derrotado.\n");
             if (defensorEntrenador == entrenador2) {
-                poke2 = entrenador2.obtenerPokemonActivo();
+                poke2 = defensorEntrenador.obtenerPokemonActivo();
                 if (poke2 == null) {
                     textoBatalla.append("\n🏆 ¡" + entrenador1.getNombre() + " gana la batalla!\n");
                     btnRealizarTurno.setEnabled(false);
@@ -312,7 +348,7 @@ public class InterfazGrafica extends JFrame {
                     actualizarBarrasHP();
                 }
             } else {
-                poke1 = entrenador1.obtenerPokemonActivo();
+                poke1 = defensorEntrenador.obtenerPokemonActivo();
                 if (poke1 == null) {
                     textoBatalla.append("\n🏆 ¡" + entrenador2.getNombre() + " gana la batalla!\n");
                     btnRealizarTurno.setEnabled(false);
@@ -335,35 +371,42 @@ public class InterfazGrafica extends JFrame {
     private JPanel crearPanelPokemon(Pokemon pokemon) {
         JPanel panel = new JPanel();
         panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        panel.setLayout(new GridLayout(0, 2, 5, 5));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Cambiado a BoxLayout para un diseño más compacto
 
-        panel.add(new JLabel("Nombre:"));
-        panel.add(new JLabel(pokemon.getName()));
-        panel.add(new JLabel("Tipo:"));
-        panel.add(new JLabel(pokemon.getType()));
-        panel.add(new JLabel("Puntos de Salud (HP):"));
-        panel.add(new JLabel(String.valueOf(pokemon.getHealthPoints())));
-        panel.add(new JLabel("Ataque (At):"));
-        panel.add(new JLabel(String.valueOf(pokemon.getAttack())));
-        panel.add(new JLabel("Defensa (Df):"));
-        panel.add(new JLabel(String.valueOf(pokemon.getDefense())));
+        // Nombre del Pokémon
+        JLabel labelNombre = new JLabel("Nombre: " + pokemon.getName());
+        labelNombre.setFont(new Font("Arial", Font.BOLD, 12));
+        panel.add(labelNombre);
 
-        panel.add(new JLabel("Ataques:"));
-        StringBuilder ataquesTexto = new StringBuilder();
+        // Tipo del Pokémon
+        JLabel labelTipo = new JLabel("Tipo: " + pokemon.getType());
+        labelTipo.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(labelTipo);
+
+        // Puntos de Salud (HP)
+        JLabel labelHP = new JLabel("HP: " + pokemon.getHealthPoints() + "/" + pokemon.getMaxHP());
+        labelHP.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(labelHP);
+
+        // Ataque y Defensa
+        JLabel labelAtaque = new JLabel("Ataque: " + pokemon.getAttack());
+        labelAtaque.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(labelAtaque);
+
+        JLabel labelDefensa = new JLabel("Defensa: " + pokemon.getDefense());
+        labelDefensa.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(labelDefensa);
+
+        // Ataques
+        JLabel labelAtaques = new JLabel("Ataques:");
+        labelAtaques.setFont(new Font("Arial", Font.BOLD, 12));
+        panel.add(labelAtaques);
+
         for (Ataque ataque : pokemon.getAttacks()) {
-            ataquesTexto.append(ataque.getdamagename())
-                        .append(" (Daño: ")
-                        .append(ataque.getdamagepotency())
-                        .append(", Tipo: ")
-                        .append(ataque.getdamagetype());
-            if (ataque.advantage(pokemon.getType())) {
-                ataquesTexto.append(", Ventaja de tipo");
-            }
+            JLabel labelAtaqueInfo = new JLabel("- " + ataque.getdamagename() + " (Daño: " + ataque.getdamagepotency() + ", Tipo: " + ataque.getdamagetype() + ")");
+            labelAtaqueInfo.setFont(new Font("Arial", Font.PLAIN, 12));
+            panel.add(labelAtaqueInfo);
         }
-        if (ataquesTexto.length() > 0) {
-            ataquesTexto.setLength(ataquesTexto.length() - 2); // Elimina la última coma y espacio
-        }
-        panel.add(new JLabel(ataquesTexto.toString()));
 
         return panel;
     }
