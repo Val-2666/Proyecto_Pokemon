@@ -324,23 +324,33 @@ public class InterfazGrafica extends JFrame {
     private void ejecutarAtaque(Pokemon atacante, Pokemon defensor, Ataque ataque, Entrenador defensorEntrenador) {
         int hpAntes = defensor.getHealthPoints();
         ataque.applyAttack(defensor);
-
+    
         textoBatalla.append("\n🌟 " + atacante.getName() + " usó " + ataque.getdamagename() + " contra " + defensor.getName() + "\n");
         textoBatalla.append("⚔️ Daño base: " + ataque.getdamagepotency() + "\n");
         if (ataque.advantage(defensor.getType())) {
             textoBatalla.append("💥 ¡Ataque con ventaja de tipo!\n");
         }
-
+    
         int daño = Math.max(hpAntes - defensor.getHealthPoints(), 0);
         textoBatalla.append("🛡️ " + defensor.getName() + " recibió " + daño + " de daño (HP restante: " + defensor.getHealthPoints() + ")\n");
-
+    
         if (defensor.getHealthPoints() <= 0) {
             textoBatalla.append("☠️ " + defensor.getName() + " ha sido derrotado.\n");
             if (defensorEntrenador == entrenador2) {
                 poke2 = defensorEntrenador.obtenerPokemonActivo();
                 if (poke2 == null) {
-                    textoBatalla.append("\n🏆 ¡" + entrenador1.getNombre() + " gana la batalla!\n");
-                    btnRealizarTurno.setEnabled(false);
+                    // Mostrar ventana con el mensaje de victoria y el botón para empezar nueva partida
+                    JOptionPane.showOptionDialog(null, 
+                        "🏆 ¡" + entrenador1.getNombre() + " gana la batalla! 🏆", 
+                        "Fin de la Batalla", 
+                        JOptionPane.DEFAULT_OPTION, 
+                        JOptionPane.INFORMATION_MESSAGE, 
+                        null, 
+                        new Object[] {"Empezar nueva partida"}, 
+                        "Empezar nueva partida");
+    
+                    reiniciarJuego();
+                    btnRealizarTurno.setEnabled(false);  // Desactivar el botón de turno ya que la batalla terminó
                 } else {
                     JOptionPane.showMessageDialog(null, defensorEntrenador.getNombre() + " envía a " + poke2.getName() + " a la batalla.");
                     actualizarAtaques();
@@ -350,8 +360,18 @@ public class InterfazGrafica extends JFrame {
             } else {
                 poke1 = defensorEntrenador.obtenerPokemonActivo();
                 if (poke1 == null) {
-                    textoBatalla.append("\n🏆 ¡" + entrenador2.getNombre() + " gana la batalla!\n");
-                    btnRealizarTurno.setEnabled(false);
+                    // Mostrar ventana con el mensaje de victoria y el botón para empezar nueva partida
+                    JOptionPane.showOptionDialog(null, 
+                        "🏆 ¡" + entrenador2.getNombre() + " gana la batalla! 🏆", 
+                        "Fin de la Batalla", 
+                        JOptionPane.DEFAULT_OPTION, 
+                        JOptionPane.INFORMATION_MESSAGE, 
+                        null, 
+                        new Object[] {"Empezar nueva partida"}, 
+                        "Empezar nueva partida");
+    
+                    reiniciarJuego();
+                    btnRealizarTurno.setEnabled(false);  // Desactivar el botón de turno ya que la batalla terminó
                 } else {
                     JOptionPane.showMessageDialog(null, defensorEntrenador.getNombre() + " envía a " + poke1.getName() + " a la batalla.");
                     actualizarAtaques();
@@ -361,7 +381,15 @@ public class InterfazGrafica extends JFrame {
             }
         }
     }
-
+    // Método para reiniciar el juego y volver a la pantalla de selección de nombres
+    private void reiniciarJuego() {
+        // Cerramos las ventanas actuales
+        dispose(); // Cerrar la ventana de batalla
+        
+        // Volver a mostrar la ventana de selección de nombres de entrenadores
+        new InterfazGrafica();  // Crear una nueva instancia de la interfaz gráfica
+    }
+    
     private void mostrarEstadoBatalla() {
         textoBatalla.setText("🔥 ¡Comienza la batalla entre " + entrenador1.getNombre() + " y " + entrenador2.getNombre() + "! 🔥\n\n"
                 + entrenador1.getNombre() + " - " + poke1.getName() + "\n"
