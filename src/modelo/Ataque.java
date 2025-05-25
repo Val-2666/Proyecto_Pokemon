@@ -1,3 +1,4 @@
+package modelo;
 public class Ataque {
     private String damagename;
     private String damagetype;

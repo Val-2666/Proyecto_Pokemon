@@ -1,5 +1,10 @@
+package vista;
 import java.awt.*;
 import javax.swing.*;
+
+import modelo.Ataque;
+import modelo.Entrenador;
+import modelo.Pokemon;
 
 public class InterfazGrafica extends JFrame {
     private JTextField tfEntrenador1, tfEntrenador2;
@@ -19,7 +24,7 @@ public class InterfazGrafica extends JFrame {
         setSize(700, 500);
         setLayout(new BorderLayout());
     
-        ImageIcon logo = new ImageIcon("logo.png");
+        ImageIcon logo = new ImageIcon(getClass().getResource("/vista/recursos/logo.png"));
         JLabel logoLabel = new JLabel(logo);
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(logoLabel, BorderLayout.NORTH);
@@ -47,87 +52,83 @@ public class InterfazGrafica extends JFrame {
         setVisible(true);
     }
 
-   public void mostrarVentanaEntrenadores() {
+public void mostrarVentanaEntrenadores() {
     JFrame ventanaEntrenadores = new JFrame("Ingreso de Nombres de Entrenadores");
     ventanaEntrenadores.setSize(700, 500);
     ventanaEntrenadores.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    ventanaEntrenadores.setLayout(new BorderLayout());
+    ventanaEntrenadores.setLocationRelativeTo(null);
 
-    // Panel de fondo con imagen
+    // Panel personalizado que dibuja el fondo
     JPanel panelFondo = new JPanel() {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            ImageIcon fondo = new ImageIcon("fondo_entrenador.png");
+            ImageIcon fondo = new ImageIcon(getClass().getResource("/vista/recursos/fondo_entrenador.png"));
             g.drawImage(fondo.getImage(), 0, 0, getWidth(), getHeight(), this);
         }
     };
     panelFondo.setLayout(new BoxLayout(panelFondo, BoxLayout.Y_AXIS));
+    panelFondo.setOpaque(false); // por si acaso
+
+    // Reemplazar el contentPane por este panel personalizado
     ventanaEntrenadores.setContentPane(panelFondo);
 
-    // Panel del formulario
+    // Panel de formulario (transparente)
     JPanel panelFormulario = new JPanel();
-    panelFormulario.setOpaque(false);
     panelFormulario.setLayout(new BoxLayout(panelFormulario, BoxLayout.Y_AXIS));
-    panelFormulario.setBorder(BorderFactory.createEmptyBorder(30, 100, 30, 100)); // Márgenes amplios
+    panelFormulario.setOpaque(false);
+    panelFormulario.setBorder(BorderFactory.createEmptyBorder(50, 150, 50, 150));
 
-    // Campo Entrenador 1
     JLabel labelEntrenador1 = new JLabel("Nombre del Entrenador 1:");
     labelEntrenador1.setFont(new Font("Arial", Font.BOLD, 16));
     labelEntrenador1.setAlignmentX(Component.CENTER_ALIGNMENT);
-    panelFormulario.add(labelEntrenador1);
 
     tfEntrenador1 = new JTextField();
     tfEntrenador1.setMaximumSize(new Dimension(300, 30));
     tfEntrenador1.setAlignmentX(Component.CENTER_ALIGNMENT);
-    panelFormulario.add(tfEntrenador1);
 
-    panelFormulario.add(Box.createVerticalStrut(20)); // Espacio vertical
-
-    // Campo Entrenador 2
     JLabel labelEntrenador2 = new JLabel("Nombre del Entrenador 2:");
     labelEntrenador2.setFont(new Font("Arial", Font.BOLD, 16));
     labelEntrenador2.setAlignmentX(Component.CENTER_ALIGNMENT);
-    panelFormulario.add(labelEntrenador2);
 
     tfEntrenador2 = new JTextField();
     tfEntrenador2.setMaximumSize(new Dimension(300, 30));
     tfEntrenador2.setAlignmentX(Component.CENTER_ALIGNMENT);
-    panelFormulario.add(tfEntrenador2);
 
-    panelFondo.add(Box.createVerticalGlue()); // Empuja el formulario hacia el centro
-    panelFondo.add(panelFormulario);
-    panelFondo.add(Box.createVerticalStrut(30)); // Espacio entre formulario y botón
-
-    // Panel del botón
-    JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
-    panelBoton.setOpaque(false);
     JButton generarEquiposButton = new JButton("Presiona para formar los equipos");
-    
+    generarEquiposButton.setAlignmentX(Component.CENTER_ALIGNMENT);
     generarEquiposButton.addActionListener(e -> {
         String nombreEntrenador1 = tfEntrenador1.getText().trim();
         String nombreEntrenador2 = tfEntrenador2.getText().trim();
 
         if (nombreEntrenador1.isEmpty() || nombreEntrenador2.isEmpty()) {
-            JOptionPane.showMessageDialog(ventanaEntrenadores, 
-                "Por favor, ingresa los nombres de ambos entrenadores.", 
+            JOptionPane.showMessageDialog(ventanaEntrenadores,
+                "Por favor, ingresa los nombres de ambos entrenadores.",
                 "Error", JOptionPane.ERROR_MESSAGE);
         } else {
             entrenador1 = new Entrenador(nombreEntrenador1);
             entrenador2 = new Entrenador(nombreEntrenador2);
             mostrarEquiposGenerados();
-            ventanaEntrenadores.dispose(); // Cierra y libera recursos
+            ventanaEntrenadores.dispose();
         }
     });
 
-    panelBoton.add(generarEquiposButton);
-    panelFondo.add(panelBoton);
-    panelFondo.add(Box.createVerticalGlue()); // Empuja el botón hacia abajo
+    // Agregar al formulario
+    panelFormulario.add(labelEntrenador1);
+    panelFormulario.add(tfEntrenador1);
+    panelFormulario.add(Box.createVerticalStrut(20));
+    panelFormulario.add(labelEntrenador2);
+    panelFormulario.add(tfEntrenador2);
+    panelFormulario.add(Box.createVerticalStrut(30));
+    panelFormulario.add(generarEquiposButton);
 
-    ventanaEntrenadores.setLocationRelativeTo(null);
+    // Agregar al panel de fondo
+    panelFondo.add(Box.createVerticalGlue());
+    panelFondo.add(panelFormulario);
+    panelFondo.add(Box.createVerticalGlue());
+
     ventanaEntrenadores.setVisible(true);
 }
-
 
     public void mostrarEquiposGenerados() {
         JFrame ventanaEquipos = new JFrame("Equipos Generados");
