@@ -1,4 +1,5 @@
 package modelo;
+
 import java.util.ArrayList;
 
 public class Pokemon {
@@ -13,19 +14,19 @@ public class Pokemon {
     private int maxHealthPoints;
     private ArrayList<Ataque> attacks;
 
-    // Constructor
     public Pokemon(String name, String type, int healthPoints, int attack, int defense, int speed) {
         this.name = name;
         this.type = type;
         this.healthPoints = healthPoints;
-        this.maxHealthPoints = healthPoints; // Guardamos el HP máximo
+        this.maxHealthPoints = healthPoints;
         this.attack = attack;
         this.defense = defense;
         this.speed = speed;
+        this.specialAttack = 0;
+        this.specialDefense = 0;
         this.attacks = new ArrayList<>();
     }
-    
-    // Getters
+
     public String getName() {
         return name;
     }
@@ -37,10 +38,16 @@ public class Pokemon {
     public int getHealthPoints() {
         return healthPoints;
     }
+
     public int getMaxHP() {
         return maxHealthPoints;
     }
-    
+
+    // ✅ Método agregado para evitar error de compilación
+    public int getMaxHealthPoints() {
+        return maxHealthPoints;
+    }
+
     public int getAttack() {
         return attack;
     }
@@ -65,7 +72,6 @@ public class Pokemon {
         return attacks;
     }
 
-    // Métodos
     public void addAttack(Ataque ataque) {
         if (attacks.size() < 4) {
             attacks.add(ataque);
@@ -83,5 +89,9 @@ public class Pokemon {
 
     public void useAttack(Ataque ataque, Pokemon enemy) {
         ataque.applyAttack(enemy);
+    }
+
+    public boolean estaDerrotado() {
+        return this.healthPoints <= 0;
     }
 }

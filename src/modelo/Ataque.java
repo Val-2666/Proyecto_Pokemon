@@ -1,69 +1,78 @@
 package modelo;
-public class Ataque {
-    private String damagename;
-    private String damagetype;
-    private int damagepotency;
 
-    public Ataque(String damagename, String damagetype, int damagepotency) {
-        this.damagename = damagename;
-        this.damagetype = damagetype;
-        this.damagepotency = damagepotency;
+public class Ataque {
+    private String damageName;
+    private String damageType;
+    private int damagePotency;
+
+    // Constructor principal
+    public Ataque(String damageName, String damageType, int damagePotency) {
+        this.damageName = damageName;
+        this.damageType = damageType;
+        this.damagePotency = damagePotency;
+    }
+
+    // Constructor alternativo (para ataques sin tipo)
+    public Ataque(String damageName, int damagePotency) {
+        this.damageName = damageName;
+        this.damageType = "normal";  // Tipo por defecto
+        this.damagePotency = damagePotency;
     }
 
     // Getters
-    public String getdamagename() {
-        return damagename;
+    public String getDamageName() {
+        return damageName;
     }
 
-    public String getdamagetype() {
-        return damagetype;
+    public String getDamageType() {
+        return damageType;
     }
 
-    public int getdamagepotency() {
-        return damagepotency;
+    public int getDamagePotency() {
+        return damagePotency;
     }
 
     public int getPower() {
-        return damagepotency;  // Ahora sí devuelve la potencia real
+        return damagePotency;
     }
 
     // Setters
-    public void setdamagename(String damagename) {
-        this.damagename = damagename;
+    public void setDamageName(String damageName) {
+        this.damageName = damageName;
     }
 
-    public void setdamagetype(String damagetype) {
-        this.damagetype = damagetype;
+    public void setDamageType(String damageType) {
+        this.damageType = damageType;
     }
 
-    public void setdamagepotency(int damagepotency) {
-        this.damagepotency = damagepotency;
+    public void setDamagePotency(int damagePotency) {
+        this.damagePotency = damagePotency;
     }
 
     // Aplica el ataque al Pokémon enemigo
     public void applyAttack(Pokemon enemy) {
         int damage = calculateDamage(enemy.getType(), enemy.getDefense());
         enemy.subtractHp(damage);
-        System.out.println("El ataque " + damagename + " ha hecho " + damage + " de daño a " + enemy.getName());
+        System.out.println("El ataque " + damageName + " ha hecho " + damage + " de daño a " + enemy.getName());
     }
 
     // Calcula el daño con o sin ventaja de tipo
-    public int calculateDamage(String enemytype, int enemydefense) {
+    public int calculateDamage(String enemyType, int enemyDefense) {
         double base = 1.0;
 
-        if (advantage(enemytype)) {
+        if (hasAdvantage(enemyType)) {
             base += 0.3;
         }
 
-        int rawDamage = (int) (damagepotency * base);
-        int finalDamage = rawDamage - enemydefense;
+        int rawDamage = (int) (damagePotency * base);
+        int finalDamage = rawDamage - enemyDefense;
         return Math.max(finalDamage, 0);
     }
 
     // Verifica ventaja de tipo
-    public boolean advantage(String enemytype) {
-        return (damagetype.equals("agua") && enemytype.equals("fuego")) ||
-               (damagetype.equals("fuego") && enemytype.equals("planta")) ||
-               (damagetype.equals("planta") && enemytype.equals("agua"));
+    public boolean hasAdvantage(String enemyType) {
+        return (damageType.equals("agua") && enemyType.equals("fuego")) ||
+               (damageType.equals("fuego") && enemyType.equals("planta")) ||
+               (damageType.equals("planta") && enemyType.equals("agua"));
     }
 }
