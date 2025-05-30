@@ -65,27 +65,26 @@ public class PokemonesPro {
     }
 
     private static void asignarAtaques(Pokemon p) {
-        switch (p.getType().toLowerCase()) {
-            case "fuego":
-                p.addAttack(new Ataque("Ascuas", "fuego", 20));
-                p.addAttack(new Ataque("Giro Fuego", "fuego", 25));
-                break;
-            case "agua":
-                p.addAttack(new Ataque("Pistola Agua", "agua", 20));
-                p.addAttack(new Ataque("Burbuja", "agua", 15));
-                break;
-            case "planta":
-                p.addAttack(new Ataque("Hoja Afilada", "planta", 20));
-                p.addAttack(new Ataque("Drenadoras", "planta", 10));
-                break;
-            case "electrico":
-                p.addAttack(new Ataque("Impactrueno", "electrico", 25));
-                p.addAttack(new Ataque("Chispa", "electrico", 30));
-                break;
-        }
+        ArrayList<Ataque> compatibles = obtenerAtaquesPorTipo(p.getType());
+        int maxAtaques = 4;
+        int contador = 0;
 
-        // Ataques comunes a todos
-        p.addAttack(new Ataque("Placaje", "normal", 10));
-        p.addAttack(new Ataque("Gruñido", "normal", 5));
+        for (Ataque atk : compatibles) {
+            if (contador >= maxAtaques) break;
+            p.addAttack(new Ataque(atk.getDamageName(), atk.getDamageType(), atk.getDamagePotency()));
+            contador++;
+        }
+    }
+
+    private static ArrayList<Ataque> obtenerAtaquesPorTipo(String tipo) {
+        ArrayList<Ataque> ataques = AtaquesDisponibles.obtenerAtaquesDisponibles();
+        ArrayList<Ataque> filtrados = new ArrayList<>();
+
+        for (Ataque atk : ataques) {
+            if (atk.getDamageType().equalsIgnoreCase(tipo) || atk.getDamageType().equalsIgnoreCase("normal")) {
+                filtrados.add(atk);
+            }
+        }
+        return filtrados;
     }
 }

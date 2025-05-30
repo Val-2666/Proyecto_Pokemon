@@ -13,6 +13,7 @@ public class InterfazGrafica extends JFrame {
     private JTextArea textoBatalla;
     private JButton btnRealizarTurno;
     private JProgressBar barraHP1, barraHP2;
+    private JLabel labelPokemon1, labelPokemon2;
     private int ronda = 1;
     private Controlador controlador;
 
@@ -29,9 +30,8 @@ public class InterfazGrafica extends JFrame {
         add(logoLabel, BorderLayout.NORTH);
 
         JLabel welcomeLabel = new JLabel(
-            "<html><center>🎮✨ ¡Prepárate para la Aventura! ✨🎮<br>Bienvenido al Simulador de Batallas Pokémon</center></html>",
-            SwingConstants.CENTER
-        );
+                "<html><center>🎮✨ ¡Prepárate para la Aventura! ✨🎮<br>Bienvenido al Simulador de Batallas Pokémon</center></html>",
+                SwingConstants.CENTER);
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeLabel.setForeground(new Color(255, 100, 100));
         add(welcomeLabel, BorderLayout.CENTER);
@@ -61,7 +61,7 @@ public class InterfazGrafica extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                ImageIcon fondo = new ImageIcon(getClass().getResource("/vista/recursos/fondo_entrenador.png"));
+                ImageIcon fondo = new ImageIcon(getClass().getResource("/vista/recursos/fondo_pokemon.png"));
                 g.drawImage(fondo.getImage(), 0, 0, getWidth(), getHeight(), this);
             }
         };
@@ -167,8 +167,7 @@ public class InterfazGrafica extends JFrame {
             pokePanel.setLayout(new BoxLayout(pokePanel, BoxLayout.Y_AXIS));
             pokePanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(Color.GRAY),
-                    BorderFactory.createEmptyBorder(5, 10, 5, 10)
-            ));
+                    BorderFactory.createEmptyBorder(5, 10, 5, 10)));
             pokePanel.setBackground(new Color(245, 245, 245));
 
             pokePanel.add(new JLabel("Nombre: " + p.getName()));
@@ -202,8 +201,8 @@ public class InterfazGrafica extends JFrame {
         labelEntrenador1.setFont(new Font("Arial", Font.BOLD, 16));
         labelEntrenador2.setFont(new Font("Arial", Font.BOLD, 16));
 
-        JLabel labelPokemon1 = new JLabel(controlador.getPokemonActualJugador1().getName(), SwingConstants.CENTER);
-        JLabel labelPokemon2 = new JLabel(controlador.getPokemonActualJugador2().getName(), SwingConstants.CENTER);
+        labelPokemon1 = new JLabel(controlador.getPokemonActualJugador1().getName(), SwingConstants.CENTER);
+        labelPokemon2 = new JLabel(controlador.getPokemonActualJugador2().getName(), SwingConstants.CENTER);
 
         barraHP1 = new JProgressBar(0, controlador.getPokemonActualJugador1().getMaxHealthPoints());
         barraHP2 = new JProgressBar(0, controlador.getPokemonActualJugador2().getMaxHealthPoints());
@@ -288,6 +287,11 @@ public class InterfazGrafica extends JFrame {
         barraHP2.setString(p2.getName() + " HP: " + p2.getHealthPoints());
     }
 
+    private void actualizarNombresPokemon() {
+        labelPokemon1.setText(controlador.getPokemonActualJugador1().getName());
+        labelPokemon2.setText(controlador.getPokemonActualJugador2().getName());
+    }
+
     private void realizarTurno() {
         int index1 = comboAtaques1.getSelectedIndex();
         int index2 = comboAtaques2.getSelectedIndex();
@@ -302,12 +306,21 @@ public class InterfazGrafica extends JFrame {
         ronda++;
 
         actualizarBarrasHP();
+        actualizarNombresPokemon();
         actualizarAtaques();
 
         if (controlador.juegoTerminado()) {
             String ganador = controlador.obtenerGanador();
-            JOptionPane.showMessageDialog(this, "🎉 ¡" + ganador + " ha ganado la batalla! 🎉");
-            btnRealizarTurno.setEnabled(false);
+            int opcion = JOptionPane.showConfirmDialog(this,
+                    "🎉 ¡" + ganador + " ha ganado la batalla! 🎉\n\n¿Quieres jugar otra partida?",
+                    "Juego Terminado", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+            if (opcion == JOptionPane.YES_OPTION) {
+                this.dispose();
+                SwingUtilities.invokeLater(() -> new InterfazGrafica());
+            } else {
+                this.dispose();
+            }
         }
     }
 }

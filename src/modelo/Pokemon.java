@@ -43,7 +43,6 @@ public class Pokemon {
         return maxHealthPoints;
     }
 
-    // ✅ Método agregado para evitar error de compilación
     public int getMaxHealthPoints() {
         return maxHealthPoints;
     }
