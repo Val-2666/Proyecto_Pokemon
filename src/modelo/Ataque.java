@@ -8,7 +8,7 @@ public class Ataque {
     // Constructor principal
     public Ataque(String damageName, String damageType, int damagePotency) {
         this.damageName = damageName;
-        this.damageType = damageType;
+        this.damageType = damageType.toLowerCase(); // para evitar problemas con mayúsculas
         this.damagePotency = damagePotency;
     }
 
@@ -32,17 +32,13 @@ public class Ataque {
         return damagePotency;
     }
 
-    public int getPower() {
-        return damagePotency;
-    }
-
     // Setters
     public void setDamageName(String damageName) {
         this.damageName = damageName;
     }
 
     public void setDamageType(String damageType) {
-        this.damageType = damageType;
+        this.damageType = damageType.toLowerCase();
     }
 
     public void setDamagePotency(int damagePotency) {
@@ -58,15 +54,15 @@ public class Ataque {
 
     // Calcula el daño con o sin ventaja de tipo
     public int calculateDamage(String enemyType, int enemyDefense) {
-        double base = 1.0;
+        double baseMultiplier = 1.0;
 
-        if (hasAdvantage(enemyType)) {
-            base += 0.3;
+        if (hasAdvantage(enemyType.toLowerCase())) {
+            baseMultiplier += 0.3;  // ventaja de tipo
         }
 
-        int rawDamage = (int) (damagePotency * base);
+        int rawDamage = (int) (damagePotency * baseMultiplier);
         int finalDamage = rawDamage - enemyDefense;
-        return Math.max(finalDamage, 0);
+        return Math.max(finalDamage, 0);  // nunca daño negativo
     }
 
     // Verifica ventaja de tipo
