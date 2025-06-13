@@ -36,7 +36,7 @@ public class PokemonesPro {
             Pokemon original = pool.get(i);
             Pokemon copia = new Pokemon(
                 original.getName(), original.getType(),
-                original.getMaxHP(), original.getAttack(),
+                original.getMaxHealthPoints(), original.getAttack(),
                 original.getDefense(), original.getSpeed()
             );
             for (Ataque atk : original.getAttacks()) {
@@ -55,7 +55,7 @@ public class PokemonesPro {
 
         Pokemon copia = new Pokemon(
             original.getName(), original.getType(),
-            original.getMaxHP(), original.getAttack(),
+            original.getMaxHealthPoints(), original.getAttack(),
             original.getDefense(), original.getSpeed()
         );
         for (Ataque atk : original.getAttacks()) {

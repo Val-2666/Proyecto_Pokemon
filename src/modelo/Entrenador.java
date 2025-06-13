@@ -26,7 +26,7 @@ public class Entrenador {
         return nombre;
     }
 
-    public ArrayList<Pokemon> getEquipo() {
+    public List<Pokemon> getEquipo() {
         return equipo;
     }
 
@@ -42,7 +42,7 @@ public class Entrenador {
         while (equipoAleatorio.size() < 3) {
             Pokemon original = pokemonesDisponibles.get(random.nextInt(pokemonesDisponibles.size()));
             if (!equipoAleatorio.contains(original)) {
-                Pokemon copia = new Pokemon(original.getName(), original.getType(), original.getMaxHP(), original.getAttack(), original.getDefense(), original.getSpeed());
+                Pokemon copia = new Pokemon(original.getName(), original.getType(), original.getMaxHealthPoints(), original.getAttack(), original.getDefense(), original.getSpeed());
                 asignarAtaques(copia);
                 equipoAleatorio.add(copia);
             }
@@ -85,6 +85,16 @@ public class Entrenador {
         }
         return null;
     }
+
+    public boolean todosDebilitados() {
+    for (Pokemon p : equipo) {
+        if (p.getHealthPoints() > 0) {
+            return false;
+        }
+    }
+    return true;
+    }   
+
 
     public boolean tienePokemonsVivos() {
         for (Pokemon p : equipo) {

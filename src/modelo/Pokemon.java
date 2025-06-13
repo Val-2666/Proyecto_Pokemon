@@ -1,7 +1,12 @@
 package modelo;
 
+import modelo.PokemonDebilitadoException;
+import modelo.AtaqueNoDisponibleException;
 import java.util.ArrayList;
+import java.util.List;
 
+
+/** Representa un Pokémon con sus estadísticas y ataques. */
 public class Pokemon {
     private String name;
     private String type;
@@ -12,7 +17,7 @@ public class Pokemon {
     private int specialDefense;
     private int speed;
     private int maxHealthPoints;
-    private ArrayList<Ataque> attacks;
+    private List<Ataque> attacks;
 
     public Pokemon(String name, String type, int healthPoints, int attack, int defense, int speed) {
         this.name = name;
@@ -27,49 +32,16 @@ public class Pokemon {
         this.attacks = new ArrayList<>();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public int getHealthPoints() {
-        return healthPoints;
-    }
-
-    public int getMaxHP() {
-        return maxHealthPoints;
-    }
-
-    public int getMaxHealthPoints() {
-        return maxHealthPoints;
-    }
-
-    public int getAttack() {
-        return attack;
-    }
-
-    public int getDefense() {
-        return defense;
-    }
-
-    public int getSpecialAttack() {
-        return specialAttack;
-    }
-
-    public int getSpecialDefense() {
-        return specialDefense;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public ArrayList<Ataque> getAttacks() {
-        return attacks;
-    }
+    public String getName() { return name; }
+    public String getType() { return type; }
+    public int getHealthPoints() { return healthPoints; }
+    public int getMaxHealthPoints() { return maxHealthPoints; }
+    public int getAttack() { return attack; }
+    public int getDefense() { return defense; }
+    public int getSpecialAttack() { return specialAttack; }
+    public int getSpecialDefense() { return specialDefense; }
+    public int getSpeed() { return speed; }
+    public List<Ataque> getAttacks() { return attacks; }
 
     public void addAttack(Ataque ataque) {
         if (attacks.size() < 4) {
@@ -80,13 +52,26 @@ public class Pokemon {
     }
 
     public void subtractHp(int damage) {
-        this.healthPoints -= damage;
-        if (this.healthPoints < 0) {
-            this.healthPoints = 0;
-        }
+        this.healthPoints = Math.max(0, this.healthPoints - damage);
     }
 
-    public void useAttack(Ataque ataque, Pokemon enemy) {
+    /** 
+     * Intenta usar un ataque sobre otro Pokémon.
+     * @throws PokemonDebilitadoException si este Pokémon ya está a 0 HP.
+     * @throws AtaqueNoDisponibleException si el ataque no está en su lista.
+     */
+    public void useAttack(Ataque ataque, Pokemon enemy)
+        throws PokemonDebilitadoException, AtaqueNoDisponibleException {
+        if (estaDerrotado()) {
+            throw new PokemonDebilitadoException(
+                "El Pokémon " + name + " está debilitado y no puede atacar."
+            );
+        }
+        if (!attacks.contains(ataque)) {
+            throw new AtaqueNoDisponibleException(
+                "Ataque " + ataque.getDamageName() + " no disponible para " + name
+            );
+        }
         ataque.applyAttack(enemy);
     }
 

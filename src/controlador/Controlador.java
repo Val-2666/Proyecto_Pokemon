@@ -1,52 +1,54 @@
 package controlador;
 
+import modelo.PokemonDebilitadoException;
+import modelo.AtaqueNoDisponibleException;
 import modelo.Entrenador;
 import modelo.PokemonesPro;
 import modelo.Pokemon;
 import modelo.Ataque;
 import modelo.ResultadoTurno;
+import persistencia.GestorDeArchivos;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class Controlador {
     private Entrenador entrenador1;
     private Entrenador entrenador2;
-    private int turno; // 0 = jugador1, 1 = jugador2
+    private int turno;
     private boolean juegoTerminado;
 
-    // Gestión de rondas y progreso
     private int rondaActual = 1;
     private int rondasGanadasJugador1 = 0;
     private int rondasGanadasJugador2 = 0;
     private int indicePokemon = 0;
     private boolean rondaTerminada;
 
-    // Estado del turno
     private boolean pokemonDebilitadoEsteTurno = false;
     private String nombrePokemonDebilitado = null;
     private String ganadorRondaActual = null;
+
+    private Stack<String> historial;
 
     public Controlador() {
         this.turno = 0;
         this.juegoTerminado = false;
         this.rondaTerminada = false;
+        this.historial = new Stack<>();
     }
 
     public void crearEntrenadores(String nombre1, String nombre2) {
         List<Pokemon> pool = new ArrayList<>(PokemonesPro.obtenerPokemonesDisponibles());
         Collections.shuffle(pool);
 
-        List<Pokemon> equipo1 = new ArrayList<>(pool.subList(0, 3));
-        List<Pokemon> equipo2 = new ArrayList<>(pool.subList(3, 6));
+        List<Pokemon> equipo1 = pool.subList(0, 3);
+        List<Pokemon> equipo2 = pool.subList(3, 6);
 
         this.entrenador1 = new Entrenador(nombre1, equipo1);
         this.entrenador2 = new Entrenador(nombre2, equipo2);
-
-        entrenador1.setPokemonActual(equipo1.get(0));
-        entrenador2.setPokemonActual(equipo2.get(0));
-
         this.indicePokemon = 0;
         this.rondaActual = 1;
         this.rondasGanadasJugador1 = 0;
@@ -54,147 +56,210 @@ public class Controlador {
         this.juegoTerminado = false;
         this.turno = 0;
         this.rondaTerminada = false;
+        this.historial.clear();
     }
 
-    public Entrenador getEntrenador1() {
-        return entrenador1;
+    // Sobrecarga para interfaz gráfica: acepta nombres de ataque y redirige al método de índices
+    public ResultadoTurno realizarTurno(String nombreAtaqueActual, String ignored) {
+        // Obtiene lista de ataques del jugador actual
+        List<Ataque> listaAtaques = getAtaquesDisponibles(turno);
+        int indice = listaAtaques.stream()
+            .map(Ataque::getDamageName)
+            .collect(Collectors.toList())
+            .indexOf(nombreAtaqueActual);
+        if (indice < 0) {
+            return new ResultadoTurno("Ataque no disponible: " + nombreAtaqueActual, false, false, ganadorRondaActual);
+        }
+        return realizarTurno(turno, indice);
     }
 
-    public Entrenador getEntrenador2() {
-        return entrenador2;
-    }
-
-    public Pokemon getPokemonActualJugador1() {
-        return entrenador1.getPokemonActual();
-    }
-
-    public Pokemon getPokemonActualJugador2() {
-        return entrenador2.getPokemonActual();
-    }
-
+    // Lógica de ataque por índice
     public ResultadoTurno realizarTurno(int jugador, int indiceAtaque) {
         if (juegoTerminado) {
-            return new ResultadoTurno("El juego ya terminó.", true, true);
+            return new ResultadoTurno("El juego ya terminó.", true, true, ganadorRondaActual);
         }
-
         if (jugador != turno) {
-            return new ResultadoTurno("No es el turno del jugador " + (jugador + 1), false, false);
+            return new ResultadoTurno("No es el turno del jugador " + (jugador + 1), false, false, ganadorRondaActual);
         }
 
-        Entrenador atacante = (jugador == 0) ? entrenador1 : entrenador2;
-        Entrenador defensor = (jugador == 0) ? entrenador2 : entrenador1;
+        Entrenador atk = (jugador == 0) ? entrenador1 : entrenador2;
+        Entrenador def = (jugador == 0) ? entrenador2 : entrenador1;
+        Pokemon pokeAtk = atk.getPokemonActual();
+        Pokemon pokeDef = def.getPokemonActual();
 
-        Pokemon atacantePokemon = atacante.getPokemonActual();
-        Pokemon defensorPokemon = defensor.getPokemonActual();
-
-        Ataque ataque = atacantePokemon.getAttacks().get(indiceAtaque);
-        int danio = ataque.getDamagePotency();
-        defensorPokemon.subtractHp(danio);
-
-        // Reiniciar estado del turno
         rondaTerminada = false;
         pokemonDebilitadoEsteTurno = false;
         nombrePokemonDebilitado = null;
         ganadorRondaActual = null;
 
-        String resumen = "Turno de " + atacante.getNombre() + ":\n";
-        resumen += atacante.getNombre() + " usó " + ataque.getDamageName() +
-                " e hizo " + danio + " de daño a " + defensorPokemon.getName() + ".";
-
-        if (defensorPokemon.estaDerrotado()) {
-            pokemonDebilitadoEsteTurno = true;
-            nombrePokemonDebilitado = defensorPokemon.getName();
-            ganadorRondaActual = atacante.getNombre();
-
-            if (jugador == 0) {
-                rondasGanadasJugador1++;
-            } else {
-                rondasGanadasJugador2++;
+        String resumen;
+        try {
+            if (indiceAtaque < 0 || indiceAtaque >= pokeAtk.getAttacks().size()) {
+                return new ResultadoTurno("Índice de ataque inválido.", false, false, ganadorRondaActual);
             }
+            Ataque ataque = pokeAtk.getAttacks().get(indiceAtaque);
+            int dañoReal = ataque.calculateDamage(pokeDef.getType(), pokeDef.getDefense());
+            pokeAtk.useAttack(ataque, pokeDef);
+
+            historial.push(ataque.getDamageName());
+
+            resumen = String.format(
+                "Turno de %s:\n%s usó %s e hizo %d de daño a %s.",
+                atk.getNombre(), atk.getNombre(),
+                ataque.getDamageName(), dañoReal,
+                pokeDef.getName()
+            );
+
+        } catch (PokemonDebilitadoException | AtaqueNoDisponibleException ex) {
+            return new ResultadoTurno(ex.getMessage(), false, false, ganadorRondaActual);
+        }
+
+        if (pokeDef.estaDerrotado()) {
+            pokemonDebilitadoEsteTurno = true;
+            nombrePokemonDebilitado = pokeDef.getName();
+            ganadorRondaActual = atk.getNombre();
+
+            if (jugador == 0) rondasGanadasJugador1++;
+            else rondasGanadasJugador2++;
+
+            historial.push("Ganador de la ronda: " + ganadorRondaActual);
 
             rondaActual++;
             indicePokemon++;
             rondaTerminada = true;
 
-            if (indicePokemon >= entrenador1.getEquipo().size() ||
-                indicePokemon >= entrenador2.getEquipo().size()) {
+            if (indicePokemon >= entrenador1.getEquipo().size()
+                || indicePokemon >= entrenador2.getEquipo().size()
+                || rondaActual > 3) {
                 juegoTerminado = true;
-            } else if (rondaActual > 3) {
-                juegoTerminado = true;
-            } else {
-                entrenador1.setPokemonActual(entrenador1.getEquipo().get(indicePokemon));
-                entrenador2.setPokemonActual(entrenador2.getEquipo().get(indicePokemon));
+                String ganadorFinal = getGanadorFinal();
+                historial.push("GANADOR COMBATE: " + ganadorFinal);
             }
+
         } else {
             turno = 1 - turno;
         }
 
-        return new ResultadoTurno(resumen, juegoTerminado, rondaTerminada);
+        return new ResultadoTurno(resumen, juegoTerminado, rondaTerminada, ganadorRondaActual);
     }
 
-    public boolean terminoRonda() {
-        return rondaTerminada;
+    // Para la vista: devuelve todo el historial concatenado
+    public String obtenerHistorialComoTexto() {
+        return String.join("\n", historial);
     }
 
-    public boolean terminoJuego() {
-        return juegoTerminado;
-    }
-
-    public String getGanador() {
-        if (!juegoTerminado) return null;
-
-        if (rondasGanadasJugador1 > rondasGanadasJugador2) {
-            return entrenador1.getNombre();
-        } else if (rondasGanadasJugador2 > rondasGanadasJugador1) {
-            return entrenador2.getNombre();
-        } else {
-            return "Empate";
-        }
-    }
-
+    public Entrenador getEntrenador1() { return entrenador1; }
+    public Entrenador getEntrenador2() { return entrenador2; }
+    public int getTurnoActual() { return turno; }
     public String getNombreTurnoActual() {
         return (turno == 0) ? entrenador1.getNombre() : entrenador2.getNombre();
     }
+    public List<Ataque> getAtaquesDisponibles(int jugador) {
+        return (jugador == 0 ? entrenador1 : entrenador2)
+            .getPokemonActual().getAttacks();
+    }
+    public String getNombrePokemonActual(int jugador) {
+        return (jugador == 0 ? entrenador1 : entrenador2)
+            .getPokemonActual().getName();
+    }
+    public int getHealthPointsActual(int jugador) {
+        return (jugador == 0 ? entrenador1 : entrenador2)
+            .getPokemonActual().getHealthPoints();
+    }
+    public int getMaxHealthPointsActual(int jugador) {
+        return (jugador == 0 ? entrenador1 : entrenador2)
+            .getPokemonActual().getMaxHealthPoints();
+    }
 
-    public void elegirPokemonJugador1(String nombrePokemon) {
-        for (Pokemon p : entrenador1.getEquipo()) {
-            if (p.getName().equals(nombrePokemon)) {
-                entrenador1.setPokemonActual(p);
+    public List<String> getHistorialList() {
+        return new ArrayList<>(historial);
+    }
+
+    public List<String> getHistorialDetallado() {
+        List<String> resultado = new ArrayList<>();
+        Stack<String> tempStack = (Stack<String>) historial.clone();
+        List<String> ronda = new ArrayList<>();
+        int rondaActual = 1;
+        int turno = 1;
+
+        while (!tempStack.isEmpty()) {
+            String linea = tempStack.remove(0);
+
+            if (linea.startsWith("GANADOR COMBATE:")) {
+                resultado.add("Ronda " + rondaActual + " - Ataques:");
+                for (int i = 0; i < ronda.size(); i++) {
+                    resultado.add("Turno " + (i + 1) + ". " + ronda.get(i));
+                }
+                resultado.add(linea);
                 break;
             }
+
+            if (linea.startsWith("Ganador de la ronda:")) {
+                resultado.add("Ronda " + rondaActual + " - Ataques:");
+                for (int i = 0; i < ronda.size(); i++) {
+                    resultado.add("Turno " + (i + 1) + ". " + ronda.get(i));
+                }
+                resultado.add(linea);
+                resultado.add("");
+                ronda.clear();
+                rondaActual++;
+                turno = 1;
+            } else {
+                ronda.add(linea);
+                turno++;
+            }
+        }
+
+        return resultado;
+    }
+
+    public void guardarEntrenadores() {
+        if (entrenador1 != null && entrenador2 != null) {
+            GestorDeArchivos.guardarEntrenador(entrenador1);
+            GestorDeArchivos.guardarEntrenador(entrenador2);
         }
     }
 
-    public void elegirPokemonJugador2(String nombrePokemon) {
-        for (Pokemon p : entrenador2.getEquipo()) {
-            if (p.getName().equals(nombrePokemon)) {
-                entrenador2.setPokemonActual(p);
-                break;
-            }
+    public void cargarEntrenadores() {
+        List<Entrenador> entrenadores = GestorDeArchivos.cargarEntrenadores();
+        if (entrenadores.size() >= 2) {
+            this.entrenador1 = entrenadores.get(0);
+            this.entrenador2 = entrenadores.get(1);
+
+            this.indicePokemon = 0;
+            this.rondaActual = 1;
+            this.rondasGanadasJugador1 = 0;
+            this.rondasGanadasJugador2 = 0;
+            this.juegoTerminado = false;
+            this.turno = 0;
+            this.rondaTerminada = false;
+            this.historial.clear();
         }
     }
 
-    public int getRondaActual() {
-        return rondaActual;
+    public void guardarPartida(String nombreArchivo) {
+        List<String> historialDetallado = getHistorialDetallado();
+        GestorDeArchivos.guardarHistorial(historialDetallado, nombreArchivo);
     }
 
-    public int getRondasGanadasJugador1() {
-        return rondasGanadasJugador1;
+    public boolean isRondaTerminada() { return rondaTerminada; }
+    public boolean isJuegoTerminado()  { return juegoTerminado; }
+    public boolean huboDebilitado()    { return pokemonDebilitadoEsteTurno; }
+    public String getNombrePokemonDebilitado() { return nombrePokemonDebilitado; }
+    public String getGanadorRondaActual()      { return ganadorRondaActual; }
+    public int getRondaActual()                { return rondaActual; }
+    public int getRondasGanadasJugador1()      { return rondasGanadasJugador1; }
+    public int getRondasGanadasJugador2()      { return rondasGanadasJugador2; }
+
+    public String getGanadorFinal() {
+        if (!juegoTerminado) return null;
+        if (rondasGanadasJugador1 > rondasGanadasJugador2) return entrenador1.getNombre();
+        if (rondasGanadasJugador2 > rondasGanadasJugador1) return entrenador2.getNombre();
+        return "Empate";
     }
 
-    public int getRondasGanadasJugador2() {
-        return rondasGanadasJugador2;
-    }
-
-    public boolean huboDebilitado() {
-        return pokemonDebilitadoEsteTurno;
-    }
-
-    public String getNombrePokemonDebilitado() {
-        return nombrePokemonDebilitado;
-    }
-
-    public String getGanadorRondaActual() {
-        return ganadorRondaActual;
+    public void guardarHistorial(String nombreArchivo) {
+        List<String> historialCompleto = getHistorialDetallado();
+        GestorDeArchivos.guardarHistorial(historialCompleto, nombreArchivo);
     }
 }
