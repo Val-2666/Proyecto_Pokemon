@@ -1,4 +1,3 @@
-
 package vista;
 
 import java.awt.*;
@@ -19,8 +18,10 @@ public class InterfazGrafica extends JFrame {
     private JButton btnRealizarTurno;
     private JButton btnGuardarPartida;
     private JProgressBar barraHP1, barraHP2;
-    private JLabel labelPokemon1, labelPokemon2;
+    private JLabel labelNombrePokemon1, labelNombrePokemon2;
     private Controlador controlador;
+    private JFrame ventanaPrincipal;  // nueva variable de instancia
+
 
     public InterfazGrafica() {
         controlador = new Controlador();
@@ -74,114 +75,197 @@ public class InterfazGrafica extends JFrame {
     }
 
     public void mostrarVentanaEntrenadores() {
-        JFrame ventana = new JFrame("Ingreso de Entrenadores");
-        ventana.setSize(700, 500);
-        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ventana.setLocationRelativeTo(null);
+    JFrame ventana = new JFrame("Ingreso de Entrenadores");
+    ventana.setSize(700, 500);
+    ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    ventana.setLocationRelativeTo(null);
 
-        JPanel fondo = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                ImageIcon img = new ImageIcon(getClass().getResource("/vista/recursos/fondo_pokemon.png"));
-                g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
-            }
-        };
-        fondo.setLayout(new BoxLayout(fondo, BoxLayout.Y_AXIS));
-        ventana.setContentPane(fondo);
+    JPanel fondo = new JPanel() {
+        @Override protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            ImageIcon img = new ImageIcon(getClass().getResource("/vista/recursos/fondo_pokemon.png"));
+            g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
+        }
+    };
+    fondo.setLayout(new BoxLayout(fondo, BoxLayout.Y_AXIS));
+    fondo.setOpaque(false);
+    ventana.setContentPane(fondo);
 
-        tfEntrenador1 = new JTextField();
-        tfEntrenador2 = new JTextField();
-        tfEntrenador1.setMaximumSize(new Dimension(300,30));
-        tfEntrenador2.setMaximumSize(new Dimension(300,30));
+    tfEntrenador1 = new JTextField();
+    tfEntrenador2 = new JTextField();
+    tfEntrenador1.setMaximumSize(new Dimension(250, 35));
+    tfEntrenador2.setMaximumSize(new Dimension(250, 35));
+    tfEntrenador1.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    tfEntrenador2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    tfEntrenador1.setHorizontalAlignment(JTextField.CENTER);
+    tfEntrenador2.setHorizontalAlignment(JTextField.CENTER);
+    tfEntrenador1.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2, true));
+    tfEntrenador2.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2, true));
 
-        JButton generar = new JButton("Formar Equipos");
-        generar.setFont(new Font("Arial", Font.PLAIN, 14));
-        generar.setAlignmentX(Component.CENTER_ALIGNMENT);
-        generar.addActionListener(e -> {
-            String n1 = tfEntrenador1.getText().trim();
-            String n2 = tfEntrenador2.getText().trim();
-            if (n1.isEmpty() || n2.isEmpty()) {
-                JOptionPane.showMessageDialog(ventana, "Ambos nombres son requeridos.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                controlador.crearEntrenadores(n1, n2);
-                ventana.dispose();
-                mostrarVentanaEquipos();
-            }
-        });
+    JButton generar = new JButton("Formar Equipos");
+    generar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    generar.setAlignmentX(Component.CENTER_ALIGNMENT);
+    generar.setFocusPainted(false);
+    generar.setBackground(new Color(66, 135, 245));
+    generar.setForeground(Color.WHITE);
+    generar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        fondo.add(Box.createVerticalGlue());
-        fondo.add(new JLabel("Nombre Entrenador 1:"));
-        fondo.add(tfEntrenador1);
-        fondo.add(Box.createVerticalStrut(20));
-        fondo.add(new JLabel("Nombre Entrenador 2:"));
-        fondo.add(tfEntrenador2);
-        fondo.add(Box.createVerticalStrut(30));
-        fondo.add(generar);
-        fondo.add(Box.createVerticalGlue());
+    generar.addActionListener(e -> {
+        String n1 = tfEntrenador1.getText().trim();
+        String n2 = tfEntrenador2.getText().trim();
+        if (n1.isEmpty() || n2.isEmpty()) {
+            JOptionPane.showMessageDialog(ventana, "Ambos nombres son requeridos.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            controlador.crearEntrenadores(n1, n2);
+            ventana.dispose();
+            mostrarVentanaEquipos();
+        }
+    });
 
-        ventana.setVisible(true);
-    }
+    fondo.add(Box.createVerticalGlue());
+
+    JLabel label1 = new JLabel("Nombre Entrenador 1:");
+    label1.setFont(new Font("Segoe UI", Font.BOLD, 18));
+    label1.setForeground(Color.BLACK);
+    label1.setAlignmentX(Component.CENTER_ALIGNMENT);
+    fondo.add(label1);
+    fondo.add(Box.createVerticalStrut(5));
+    fondo.add(tfEntrenador1);
+    fondo.add(Box.createVerticalStrut(20));
+
+    JLabel label2 = new JLabel("Nombre Entrenador 2:");
+    label2.setFont(new Font("Segoe UI", Font.BOLD, 18));
+    label2.setForeground(Color.BLACK);
+    label2.setAlignmentX(Component.CENTER_ALIGNMENT);
+    fondo.add(label2);
+    fondo.add(Box.createVerticalStrut(5));
+    fondo.add(tfEntrenador2);
+
+    fondo.add(Box.createVerticalStrut(30));
+    fondo.add(generar);
+    fondo.add(Box.createVerticalGlue());
+
+    ventana.setVisible(true);
+}
 
     private void mostrarVentanaEquipos() {
-        Entrenador e1 = controlador.getEntrenador1();
-        Entrenador e2 = controlador.getEntrenador2();
+    Entrenador e1 = controlador.getEntrenador1();
+    Entrenador e2 = controlador.getEntrenador2();
 
-        JFrame frame = new JFrame("Equipos Generados");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(600, 400);
-        frame.setLocationRelativeTo(null);
+    JFrame frame = new JFrame("Equipos Pokémon Listos");
+    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    frame.setSize(900, 650);
+    frame.setLocationRelativeTo(null);
+    frame.setLayout(new BorderLayout(10, 10));
 
-        JPanel panelPrincipal = new JPanel(new GridLayout(1, 2, 10, 10));
-        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        panelPrincipal.add(crearPanelEntrenador(e1));
-        panelPrincipal.add(crearPanelEntrenador(e2));
+    JLabel titulo = new JLabel("🔥 ¡Equipos preparados para la batalla! ⚡", SwingConstants.CENTER);
+    titulo.setFont(new Font("Arial", Font.BOLD, 22));
+    titulo.setForeground(new Color(30, 144, 255));
+    frame.add(titulo, BorderLayout.NORTH);
 
-        JScrollPane scroll = new JScrollPane(panelPrincipal);
-        frame.add(scroll, BorderLayout.CENTER);
+    // Buscador
+    JPanel panelBusqueda = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    JLabel lblBuscar = new JLabel("🔍 Buscar Pokémon por nombre o tipo:");
+    JTextField campoBusqueda = new JTextField(20);
+    panelBusqueda.add(lblBuscar);
+    panelBusqueda.add(campoBusqueda);
+    frame.add(panelBusqueda, BorderLayout.BEFORE_FIRST_LINE);
 
-        JButton inicio = crearBoton("Iniciar Batalla", new Font("Arial", Font.BOLD, 14), new Color(100, 200, 100), Color.BLACK);
-        inicio.addActionListener(e -> {
-            frame.dispose();
-            mostrarVentanaBatalla();
-        });
-        frame.add(inicio, BorderLayout.SOUTH);
-        frame.setVisible(true);
-    }
+    JPanel panelCentral = new JPanel(new GridLayout(1, 2, 10, 10));
+    panelCentral.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-    private JPanel crearPanelEntrenador(Entrenador entrenador) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.GRAY),
-            BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
-        panel.setBackground(new Color(245, 245, 245));
+    JScrollPane panelEntrenador1 = crearPanelEntrenadorDecorado(e1, "");
+    JScrollPane panelEntrenador2 = crearPanelEntrenadorDecorado(e2, "");
 
-        JLabel label = new JLabel(entrenador.getNombre());
-        label.setFont(new Font("Arial", Font.BOLD, 18));
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(label);
-        panel.add(Box.createVerticalStrut(10));
+    panelCentral.add(panelEntrenador1);
+    panelCentral.add(panelEntrenador2);
 
-        for (var p : entrenador.getEquipo()) {
-            panel.add(new JLabel("Nombre: " + p.getName()));
-            panel.add(new JLabel("Tipo: " + p.getType()));
-            panel.add(new JLabel("HP: " + p.getHealthPoints() + " / " + p.getMaxHealthPoints()));
-            panel.add(new JLabel("Ataques:"));
-            for (Ataque a : p.getAttacks()) {
-                panel.add(new JLabel(" - " + a.getDamageName() + " (" + a.getDamagePotency() + " daño)"));
-            }
-            panel.add(Box.createVerticalStrut(10));
+    frame.add(panelCentral, BorderLayout.CENTER);
+
+    // Botón iniciar batalla
+    JButton inicio = crearBoton("Iniciar Batalla", new Font("Arial", Font.BOLD, 16), new Color(255, 215, 0), Color.BLACK);
+    inicio.setPreferredSize(new Dimension(250, 40));
+    inicio.addActionListener(e -> {
+        frame.dispose();
+        mostrarVentanaBatalla();
+    });
+
+    JPanel panelSur = new JPanel();
+    panelSur.add(inicio);
+    frame.add(panelSur, BorderLayout.SOUTH);
+
+    // Lógica del buscador
+    campoBusqueda.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+        public void changedUpdate(javax.swing.event.DocumentEvent e) { actualizar(); }
+        public void removeUpdate(javax.swing.event.DocumentEvent e) { actualizar(); }
+        public void insertUpdate(javax.swing.event.DocumentEvent e) { actualizar(); }
+
+        private void actualizar() {
+            String texto = campoBusqueda.getText().trim().toLowerCase();
+            panelCentral.removeAll();
+            panelCentral.add(crearPanelEntrenadorDecorado(e1, texto));
+            panelCentral.add(crearPanelEntrenadorDecorado(e2, texto));
+            panelCentral.revalidate();
+            panelCentral.repaint();
         }
-        return panel;
+    });
+
+    frame.setVisible(true);
+}
+
+private JScrollPane crearPanelEntrenadorDecorado(Entrenador entrenador, String filtro) {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setBackground(new Color(250, 250, 255));
+    panel.setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(new Color(100, 100, 255), 2, true),
+        BorderFactory.createEmptyBorder(10, 15, 10, 15)
+    ));
+
+    JLabel nombre = new JLabel("👤 " + entrenador.getNombre(), SwingConstants.CENTER);
+    nombre.setFont(new Font("Arial", Font.BOLD, 18));
+    nombre.setAlignmentX(Component.CENTER_ALIGNMENT);
+    nombre.setForeground(new Color(50, 50, 200));
+    panel.add(nombre);
+    panel.add(Box.createVerticalStrut(10));
+
+    for (var p : entrenador.getEquipo()) {
+        String nombrePoke = p.getName().toLowerCase();
+        String tipoPoke = p.getType().toLowerCase();
+
+        if (!filtro.isEmpty() && !nombrePoke.contains(filtro) && !tipoPoke.contains(filtro)) {
+            continue; // Saltar si no coincide
+        }
+
+        JLabel lblNombre = new JLabel("🔹 Nombre: " + p.getName());
+        lblNombre.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel lblTipo = new JLabel("🔸 Tipo: " + p.getType());
+        lblTipo.setFont(new Font("Arial", Font.PLAIN, 14));
+        JLabel lblVida = new JLabel("❤️ HP: " + p.getHealthPoints() + " / " + p.getMaxHealthPoints());
+        lblVida.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        panel.add(lblNombre);
+        panel.add(lblTipo);
+        panel.add(lblVida);
+        panel.add(new JLabel("💥 Ataques:"));
+        for (Ataque a : p.getAttacks()) {
+            panel.add(new JLabel(" - " + a.getDamageName() + " (" + a.getDamagePotency() + " daño)"));
+        }
+        panel.add(Box.createVerticalStrut(10));
     }
+
+    JScrollPane scroll = new JScrollPane(panel);
+    scroll.setBorder(BorderFactory.createEmptyBorder());
+    return scroll;
+}
+
 
     public void mostrarVentanaBatalla() {
-        JFrame ventana = new JFrame("Batalla Pokémon");
-        ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ventana.setSize(1000, 650);
-        ventana.setLocationRelativeTo(null);
+        ventanaPrincipal = new JFrame("Batalla Pokémon");
+        ventanaPrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ventanaPrincipal.setSize(1000, 650);
+        ventanaPrincipal.setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(null) {
             @Override protected void paintComponent(Graphics g) {
@@ -190,26 +274,47 @@ public class InterfazGrafica extends JFrame {
                 g.drawImage(bg.getImage(), 0, 0, getWidth(), getHeight(), this);
             }
         };
-        ventana.setContentPane(panel);
+        ventanaPrincipal.setContentPane(panel);
 
         initBattleWindow(panel);
         attachListeners();
 
-        ventana.setVisible(true);
+        ventanaPrincipal.setVisible(true);
     }
 
-        private void initBattleWindow(Container parent) {
+    private void mostrarVentanaFinDeBatalla() {
+    int opcion = JOptionPane.showOptionDialog(
+        this,
+        "🎉 La batalla ha terminado.\n¿Deseas jugar otra vez o salir del programa?",
+        "¡Fin de la Batalla!",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        new Object[]{"🔁 Jugar de nuevo", "❌ Salir"},
+        "🔁 Jugar de nuevo"
+    );
+
+    if (opcion == JOptionPane.YES_OPTION) {
+        // Reiniciar juego: mostramos ventana de entrenadores
+        ventanaPrincipal.dispose(); // Cierra la ventana actual (batalla)
+        controlador.reiniciar();
+        mostrarVentanaEntrenadores(); // Empieza desde cero
+    } else {
+        System.exit(0); // Cierra completamente el programa
+    }
+}
+
+
+    private void initBattleWindow(Container parent) {
         createBattleLogArea(parent);
         createHistorialPanel(parent);
         createEntrenadorLabels(parent);
         createPokemonLabelsAndHP(parent);
         createAttackCombos(parent);
 
-        // Botón de guardar historial justo debajo de 'Realizar Turno'
         btnGuardarPartida = new JButton("💾 Guardar Historial");
-        // Ubicación: misma X que btnRealizarTurno, Y un poco más abajo
         btnGuardarPartida.setBounds(320, 200, 180, 30);
-        btnGuardarPartida.setEnabled(false); // sólo habilitado al final de la partida
+        btnGuardarPartida.setEnabled(false);
         parent.add(btnGuardarPartida);
     }
 
@@ -242,13 +347,13 @@ public class InterfazGrafica extends JFrame {
     }
 
     private void createEntrenadorLabels(Container parent) {
-        labelPokemon1 = nuevaEtiqueta("Entrenador 1: " + controlador.getEntrenador1().getNombre(), parent, 50, 20, 400, 30);
-        labelPokemon2 = nuevaEtiqueta("Entrenador 2: " + controlador.getEntrenador2().getNombre(), parent, 550, 20, 400, 30);
+        nuevaEtiqueta("Entrenador 1: " + controlador.getEntrenador1().getNombre(), parent, 50, 20, 400, 30);
+        nuevaEtiqueta("Entrenador 2: " + controlador.getEntrenador2().getNombre(), parent, 550, 20, 400, 30);
     }
 
     private void createPokemonLabelsAndHP(Container parent) {
-        labelPokemon1 = nuevaEtiqueta(controlador.getNombrePokemonActual(0), parent, 50, 60, 200, 25);
-        labelPokemon2 = nuevaEtiqueta(controlador.getNombrePokemonActual(1), parent, 550, 60, 200, 25);
+        labelNombrePokemon1 = nuevaEtiqueta(controlador.getNombrePokemonActual(0), parent, 50, 60, 200, 25);
+        labelNombrePokemon2 = nuevaEtiqueta(controlador.getNombrePokemonActual(1), parent, 550, 60, 200, 25);
         barraHP1 = nuevaBarra(controlador.getHealthPointsActual(0), controlador.getMaxHealthPointsActual(0), parent, 50, 90, 200, 25);
         barraHP2 = nuevaBarra(controlador.getHealthPointsActual(1), controlador.getMaxHealthPointsActual(1), parent, 550, 90, 200, 25);
     }
@@ -269,13 +374,14 @@ public class InterfazGrafica extends JFrame {
             textoBatalla.append("➡️ Ahora: " + controlador.getNombreTurnoActual() + " - Ronda " + controlador.getRondaActual() + "\n\n");
             barraHP1.setValue(controlador.getHealthPointsActual(0));
             barraHP2.setValue(controlador.getHealthPointsActual(1));
-            labelPokemon1.setText(controlador.getNombrePokemonActual(0));
-            labelPokemon2.setText(controlador.getNombrePokemonActual(1));
+            labelNombrePokemon1.setText(controlador.getNombrePokemonActual(0));
+            labelNombrePokemon2.setText(controlador.getNombrePokemonActual(1));
             actualizarAtaques();
             updateHistorial();
-            if (r.getGanador() != null) {
-                btnGuardarPartida.setEnabled(true);
-            }
+            if (controlador.isJuegoTerminado()) {
+            btnGuardarPartida.setEnabled(true);
+}
+
         });
 
         btnGuardarPartida.addActionListener(e -> {
@@ -283,6 +389,7 @@ public class InterfazGrafica extends JFrame {
             JOptionPane.showMessageDialog(this,
                 "Historial guardado en historial_batalla.txt 🎉", "¡Guardado!",
                 JOptionPane.INFORMATION_MESSAGE);
+                mostrarVentanaFinDeBatalla();
         });
     }
 
@@ -339,4 +446,3 @@ public class InterfazGrafica extends JFrame {
         for (Ataque a : controlador.getAtaquesDisponibles(1)) comboAtaques2.addItem(a.getDamageName());
     }
 }
-
